@@ -25,12 +25,8 @@ struct SectionScrollView<Content: View>: View {
                 scrolledPastHeader = pastHeader
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text(title)
-                    .font(.headline)
-                    .opacity(scrolledPastHeader ? 1 : 0)
-            }
-        }
+        // Same leading toolbar title as before, but only once the big header
+        // has scrolled away — so the two are never visible at once.
+        .navigationTitle(scrolledPastHeader ? title : "")
     }
 }

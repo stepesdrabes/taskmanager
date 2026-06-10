@@ -44,12 +44,8 @@ struct ProcessesView: View {
             .width(min: 70, ideal: 100, max: 130)
         }
         .searchable(text: $searchText, prompt: "Search processes")
+        .navigationTitle("Processes")
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("Processes")
-                    .font(.headline)
-            }
-
             ToolbarItem(placement: .primaryAction) {
                 Button("End Task", systemImage: "xmark.circle") {
                     signalSelected(SIGTERM)
