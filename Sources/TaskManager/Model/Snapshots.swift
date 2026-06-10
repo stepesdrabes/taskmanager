@@ -53,8 +53,10 @@ nonisolated struct GPUSnapshot: Sendable {
 nonisolated struct ProcessRow: Sendable, Identifiable {
     let id: pid_t
     let name: String
-    let cpu: Double      // fraction of one core; 1.0 = 100 % (Activity Monitor convention)
-    let memory: UInt64   // physical footprint bytes
+    let path: String?        // executable path, for the icon lookup
+    let cpu: Double          // fraction of one core; 1.0 = 100 % (Activity Monitor convention)
+    let memory: UInt64       // physical footprint bytes
+    let diskPerSec: Double   // read + write
 }
 
 nonisolated enum MemoryPressure: Int, Sendable {
