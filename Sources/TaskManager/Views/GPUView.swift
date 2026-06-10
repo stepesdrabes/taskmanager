@@ -4,39 +4,34 @@ struct GPUView: View {
     @Environment(MetricsStore.self) private var store
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                SectionHeader(title: "GPU", subtitle: store.system.gpuName ?? store.system.chipName)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("% Utilization")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    HistoryChart(
-                        series: [.init(
-                            label: "Device",
-                            color: MonitorSection.gpu.tint,
-                            values: store.history.elements.map { ($0.gpu?.device ?? 0) * 100 }
-                        )],
-                        capacity: store.history.capacity,
-                        yDomain: 0...100,
-                        yLabel: { "\(Int($0))%" }
-                    )
-                    .frame(height: 240)
-                }
-
-                HStack(spacing: 16) {
-                    auxSparkline(label: "Renderer", value: store.latest?.gpu?.renderer) {
-                        $0.gpu?.renderer
-                    }
-                    auxSparkline(label: "Tiler", value: store.latest?.gpu?.tiler) {
-                        $0.gpu?.tiler
-                    }
-                }
-
-                StatGrid(items: items)
+        SectionScrollView(title: "GPU", subtitle: store.system.gpuName ?? store.system.chipName) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("% Utilization")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                HistoryChart(
+                    series: [.init(
+                        label: "Device",
+                        color: MonitorSection.gpu.tint,
+                        values: store.history.elements.map { ($0.gpu?.device ?? 0) * 100 }
+                    )],
+                    capacity: store.history.capacity,
+                    yDomain: 0...100,
+                    yLabel: { "\(Int($0))%" }
+                )
+                .frame(height: 240)
             }
-            .padding(24)
+
+            HStack(spacing: 16) {
+                auxSparkline(label: "Renderer", value: store.latest?.gpu?.renderer) {
+                    $0.gpu?.renderer
+                }
+                auxSparkline(label: "Tiler", value: store.latest?.gpu?.tiler) {
+                    $0.gpu?.tiler
+                }
+            }
+
+            StatGrid(items: items)
         }
     }
 

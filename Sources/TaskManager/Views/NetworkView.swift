@@ -5,44 +5,39 @@ struct NetworkView: View {
     @State private var selectedID: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                SectionHeader(
-                    title: "Network",
-                    subtitle: selected.map { "\($0.displayName) (\($0.id))" } ?? ""
-                )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 16) {
-                        legendDot(color: .blue, label: "Receive")
-                        legendDot(color: .orange, label: "Send")
-                        Spacer()
-                        if activeInterfaces.count > 1 {
-                            Picker("Interface", selection: pickerBinding) {
-                                ForEach(activeInterfaces) { interface in
-                                    Text("\(interface.displayName) (\(interface.id))").tag(interface.id)
-                                }
+        SectionScrollView(
+            title: "Network",
+            subtitle: selected.map { "\($0.displayName) (\($0.id))" } ?? ""
+        ) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 16) {
+                    legendDot(color: .blue, label: "Receive")
+                    legendDot(color: .orange, label: "Send")
+                    Spacer()
+                    if activeInterfaces.count > 1 {
+                        Picker("Interface", selection: pickerBinding) {
+                            ForEach(activeInterfaces) { interface in
+                                Text("\(interface.displayName) (\(interface.id))").tag(interface.id)
                             }
-                            .labelsHidden()
-                            .fixedSize()
                         }
+                        .labelsHidden()
+                        .fixedSize()
                     }
-                    HistoryChart(
-                        series: [
-                            .init(label: "Receive", color: .blue, values: series(\.rxPerSec)),
-                            .init(label: "Send", color: .orange, values: series(\.txPerSec)),
-                        ],
-                        capacity: store.history.capacity,
-                        yLabel: { Format.storageBytesPerSecond($0) }
-                    )
-                    .frame(height: 240)
                 }
-
-                if let interface = selected {
-                    StatGrid(items: items(for: interface))
-                }
+                HistoryChart(
+                    series: [
+                        .init(label: "Receive", color: .blue, values: series(\.rxPerSec)),
+                        .init(label: "Send", color: .orange, values: series(\.txPerSec)),
+                    ],
+                    capacity: store.history.capacity,
+                    yLabel: { Format.storageBytesPerSecond($0) }
+                )
+                .frame(height: 240)
             }
-            .padding(24)
+
+            if let interface = selected {
+                StatGrid(items: items(for: interface))
+            }
         }
     }
 

@@ -4,26 +4,21 @@ struct DiskView: View {
     @Environment(MetricsStore.self) private var store
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                SectionHeader(
-                    title: "Disk",
-                    subtitle: activeDisks.map(\.id).joined(separator: " · ")
-                )
+        SectionScrollView(
+            title: "Disk",
+            subtitle: activeDisks.map(\.id).joined(separator: " · ")
+        ) {
+            ForEach(activeDisks) { disk in
+                diskBlock(disk)
+            }
 
-                ForEach(activeDisks) { disk in
-                    diskBlock(disk)
-                }
-
-                if let volumes = store.latest?.volumes, !volumes.isEmpty {
-                    Text("Volumes")
-                        .font(.title3.weight(.semibold))
-                    ForEach(volumes) { volume in
-                        volumeRow(volume)
-                    }
+            if let volumes = store.latest?.volumes, !volumes.isEmpty {
+                Text("Volumes")
+                    .font(.title3.weight(.semibold))
+                ForEach(volumes) { volume in
+                    volumeRow(volume)
                 }
             }
-            .padding(24)
         }
     }
 

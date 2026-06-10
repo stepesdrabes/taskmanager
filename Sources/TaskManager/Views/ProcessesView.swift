@@ -45,17 +45,26 @@ struct ProcessesView: View {
         }
         .searchable(text: $searchText, prompt: "Search processes")
         .toolbar {
-            Button("End Task", systemImage: "xmark.circle") {
-                signalSelected(SIGTERM)
+            ToolbarItem(placement: .principal) {
+                Text("Processes")
+                    .font(.headline)
             }
-            .disabled(selection == nil)
-            .help("Ask the process to quit (SIGTERM)")
 
-            Button("Force Kill", systemImage: "bolt.circle") {
-                signalSelected(SIGKILL)
+            ToolbarItem(placement: .primaryAction) {
+                Button("End Task", systemImage: "xmark.circle") {
+                    signalSelected(SIGTERM)
+                }
+                .disabled(selection == nil)
+                .help("Ask the process to quit (SIGTERM)")
             }
-            .disabled(selection == nil)
-            .help("Kill the process immediately (SIGKILL)")
+
+            ToolbarItem(placement: .primaryAction) {
+                Button("Force Kill", systemImage: "bolt.circle") {
+                    signalSelected(SIGKILL)
+                }
+                .disabled(selection == nil)
+                .help("Kill the process immediately (SIGKILL)")
+            }
         }
         .alert("Not permitted", isPresented: $signalFailed) {
             Button("OK", role: .cancel) {}

@@ -4,40 +4,35 @@ struct EnergyView: View {
     @Environment(MetricsStore.self) private var store
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                SectionHeader(title: "Energy", subtitle: subtitle)
+        SectionScrollView(title: "Energy", subtitle: subtitle) {
+            if let energy = store.latest?.energy {
+                chargeIndicator(energy)
 
-                if let energy = store.latest?.energy {
-                    chargeIndicator(energy)
-
-                    VStack(alignment: .leading, spacing: 14) {
-                        Text("Power draw")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        HistoryChart(
-                            series: [.init(
-                                label: "Power",
-                                color: MonitorSection.energy.tint,
-                                values: store.history.elements.map { $0.energy?.powerWatts ?? 0 }
-                            )],
-                            capacity: store.history.capacity,
-                            yLabel: { String(format: "%.0f W", $0) }
-                        )
-                        .frame(height: 220)
-                    }
-
-                    StatGrid(items: items(for: energy))
-                } else {
-                    ContentUnavailableView(
-                        "No Battery",
-                        systemImage: "bolt.slash",
-                        description: Text("This Mac has no battery to report on.")
+                VStack(alignment: .leading, spacing: 14) {
+                    Text("Power draw")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    HistoryChart(
+                        series: [.init(
+                            label: "Power",
+                            color: MonitorSection.energy.tint,
+                            values: store.history.elements.map { $0.energy?.powerWatts ?? 0 }
+                        )],
+                        capacity: store.history.capacity,
+                        yLabel: { String(format: "%.0f W", $0) }
                     )
-                    .padding(.top, 60)
+                    .frame(height: 220)
                 }
+
+                StatGrid(items: items(for: energy))
+            } else {
+                ContentUnavailableView(
+                    "No Battery",
+                    systemImage: "bolt.slash",
+                    description: Text("This Mac has no battery to report on.")
+                )
+                .padding(.top, 60)
             }
-            .padding(24)
         }
     }
 

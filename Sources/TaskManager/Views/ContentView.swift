@@ -18,7 +18,6 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 180, ideal: 210, max: 280)
         } detail: {
             detailView
-                .navigationTitle((selection ?? .cpu).title)
         }
     }
 

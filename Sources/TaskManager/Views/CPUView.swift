@@ -11,39 +11,34 @@ struct CPUView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                SectionHeader(title: "CPU", subtitle: store.system.chipName)
-
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(display == .overall ? "% Utilization" : "% Utilization per logical processor")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Picker("Display", selection: $display) {
-                            ForEach(CoreDisplay.allCases) { mode in
-                                Text(mode.rawValue).tag(mode)
-                            }
+        SectionScrollView(title: "CPU", subtitle: store.system.chipName) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(display == .overall ? "% Utilization" : "% Utilization per logical processor")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Picker("Display", selection: $display) {
+                        ForEach(CoreDisplay.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
                         }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
-                        .fixedSize()
                     }
-                    if display == .overall {
-                        overallChart
-                    } else {
-                        coreGrid
-                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .fixedSize()
                 }
-
-                StatGrid(items: liveItems)
-
-                Divider()
-
-                StatGrid(items: staticItems, valueFont: .body)
+                if display == .overall {
+                    overallChart
+                } else {
+                    coreGrid
+                }
             }
-            .padding(24)
+
+            StatGrid(items: liveItems)
+
+            Divider()
+
+            StatGrid(items: staticItems, valueFont: .body)
         }
     }
 
