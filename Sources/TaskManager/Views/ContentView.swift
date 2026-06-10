@@ -26,6 +26,8 @@ struct ContentView: View {
             CPUView()
         case .memory:
             MemoryView()
+        case .gpu:
+            GPUView()
         default:
             PlaceholderView(section: selection ?? .cpu)
         }
