@@ -17,7 +17,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
 7. [x] `feat(ui): add shared chart, sparkline and stat grid components`
    — `HistoryChart`, `Sparkline`, `StatGrid`, `SectionHeader`.
 8. [x] `feat(cpu): add cpu view with history chart and stats`
-9. [ ] `feat(cpu): add per-core sparkline grid toggle`
+9. [x] `feat(cpu): add per-core sparkline grid toggle`
 10. [ ] `feat(memory): add memory sampler`
 11. [ ] `feat(memory): add memory view with composition bar`
 12. [ ] `feat(gpu): add gpu sampler` — verify the PerformanceStatistics keys here (risk #1)
