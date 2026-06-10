@@ -35,8 +35,8 @@ struct ContentView: View {
             DiskView()
         case .network:
             NetworkView()
-        default:
-            PlaceholderView(section: selection ?? .cpu)
+        case .processes:
+            ProcessesView()
         }
     }
 }
