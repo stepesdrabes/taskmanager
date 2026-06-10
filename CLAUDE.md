@@ -37,6 +37,7 @@ One sample per tick (default 1 s) produces one immutable `Snapshot`. The store k
 
 - `TaskManagerApp.swift` — `@main`. Owns the `MetricsStore`, the `WindowGroup`, the `Settings` scene, the `View` command menu (⌘1–⌘7), and the occlusion observer that pauses sampling when the window is hidden.
 - `MetricsStore.swift` — the `@MainActor @Observable` store. Runs the sampling loop, holds `history`, `selectedSection`, and the live `processes` array.
+- `Localizer.swift` — the localization engine (see Localization below); `Localizations/` holds the per-language JSON.
 - `Model/`
   - `Snapshots.swift` — every `Sendable` snapshot struct: the top-level `Snapshot` plus `CPUSnapshot`, `MemorySnapshot`, `GPUSnapshot?`, `[DiskSnapshot]`, `[VolumeSnapshot]`, `[InterfaceSnapshot]`, `EnergySnapshot?`, and the standalone `ProcessRow`.
   - `SystemInfo.swift` — one-shot static facts (chip name, core topology, cache sizes, total RAM, GPU model). Read once at launch via the `Sysctl` helper.
@@ -51,6 +52,13 @@ One sample per tick (default 1 s) produces one immutable `Snapshot`. The store k
   - `MonitorSection.swift` — the section enum; the single source of truth for each section's title, SF Symbol, and tint.
   - One view per section (`CPUView`, `MemoryView`, …) plus `SettingsView`.
   - `Components/` — shared building blocks: `SectionScrollView`, `HistoryChart`, `Sparkline`, `StatGrid`, `CompositionBar`, `SectionHeader`, `SidebarIcon`, `ChartHover`.
+
+## Localization
+
+- One JSON file per language in `Sources/TaskManager/Localizations/` (`en.json` is the source of truth; `cs.json` is the Czech translation). Authored nested by area; bundled as an SPM resource (`.copy("Localizations")`) and copied into the `.app` by the Makefile so `Bundle.module` resolves in both `make dev` and `make run`.
+- `Localizer` (`@Observable @MainActor`, injected via `.environment`) loads the chosen language, flattens the nested JSON to dotted keys, fills `{placeholder}` tokens, and falls back English → key. `preference` is `"system"` (default — follow the OS language) or a concrete code; changing it is **live** (views re-render because `strings` is observed).
+- Views read `@Environment(Localizer.self) private var loc` and call `loc("section.key")`, or `loc("memory.swap", ["used": a, "total": b])` for templated strings. **No user-facing string literal belongs in a view** — every new string goes into *both* JSON files (English required, others fall back).
+- `MonitorSection` carries only a `titleKey`; section names are localized at the call site. `SystemReport.gather(system:loc:)` takes the localizer because its labels are localized too.
 
 ## Sampling & concurrency model (the important part)
 
@@ -80,14 +88,14 @@ Two independent tasks run in the store:
 
 1. Add fields to the relevant snapshot struct in `Model/Snapshots.swift` (keep it `nonisolated ... Sendable`).
 2. Populate them in that section's sampler in `Sampling/`. If it's a rate, store the previous counter on the sampler and compute a wrap-safe delta; clamp negatives to 0.
-3. Read it in the section view from `store.latest` (current value) or `store.history.elements` (the series), and surface it with an existing `Components/` piece — `StatGrid.Item` for a number, a new `HistoryChart.Series` for a line.
+3. Read it in the section view from `store.latest` (current value) or `store.history.elements` (the series), and surface it with an existing `Components/` piece — `StatGrid.Item` for a number, a new `HistoryChart.Series` for a line. Add any new label to **both** JSON files and reference it via `loc("…")`.
 
 ## Add a whole new section
 
 1. Add a `Sendable` snapshot struct + a field on `Snapshot` in `Model/Snapshots.swift`.
 2. Add a `nonisolated` sampler in `Sampling/` and wire it into `Sampler.sample()`.
-3. Add a case to `MonitorSection` (title, SF Symbol, tint) — this adds the sidebar row and ⌘-shortcut automatically. Note: there is no `gpu` SF Symbol; that case reuses `cpu.fill` differentiated by tint.
-4. Create `Views/<Name>View.swift` wrapping its content in `SectionScrollView(title:subtitle:)` (gives the header + scroll-driven toolbar title for free), and add the case to the `switch` in `ContentView`.
+3. Add a case to `MonitorSection` (SF Symbol, tint) and a `section.<name>` entry to every JSON file — this adds the localized sidebar row and ⌘-shortcut automatically. Note: there is no `gpu` SF Symbol; that case reuses `cpu.fill` differentiated by tint.
+4. Create `Views/<Name>View.swift` wrapping its content in `SectionScrollView(title: loc("section.<name>"), subtitle:)` (gives the header + scroll-driven toolbar title for free), and add the case to the `switch` in `ContentView`. Localize every label via `loc(…)`.
 
 ## Useful shared components
 

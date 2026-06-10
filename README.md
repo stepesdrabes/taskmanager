@@ -39,6 +39,23 @@ make clean  # remove build artifacts
 
 That's it — no signing setup, no dependencies to fetch.
 
+## Languages
+
+TaskManager speaks **English** and **Czech** out of the box, and picks your Mac's language automatically (falling back to English). You can also choose a language by hand in **Settings → Language**.
+
+Each language is a single JSON file in [`Sources/TaskManager/Localizations/`](Sources/TaskManager/Localizations) — `en.json`, `cs.json`, and so on. Adding your own takes a few minutes and **no code**:
+
+1. **Copy `en.json`** to `<code>.json`, where `<code>` is your language's two-letter code — `de` for German, `fr` for French, `pl` for Polish…
+2. **Set the `language` block** at the top — the `code` and the `name` that shows up in the Settings dropdown:
+   ```json
+   "language": { "code": "de", "name": "Deutsch" }
+   ```
+3. **Translate the right-hand side** of each `"key": "value"` pair. Leave the keys (the left side) exactly as they are — those are what the app looks up.
+4. **Keep anything in `{curly braces}`** untouched — they're slots the app fills in at runtime, like `"{used} of {total} allocated"`. Move them around to fit your grammar, just don't rename them.
+5. **Rebuild** with `make run`. Your language shows up in Settings automatically.
+
+If a key is ever missing from your file, the app quietly falls back to the English text, so a partial translation still works.
+
 ## A few honest notes
 
 - **It runs unsandboxed.** The system APIs it reads (IOKit, low-level sysctls) are blocked by the App Sandbox, so the app ships ad-hoc signed and sandbox-free. That makes it a great personal tool, but not an App Store candidate.
