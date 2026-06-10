@@ -1,28 +1,41 @@
+import Charts
 import SwiftUI
 
 struct MemoryView: View {
     @Environment(MetricsStore.self) private var store
+    @State private var display: MemoryDisplay = .used
+
+    private enum MemoryDisplay: String, CaseIterable, Identifiable {
+        case used = "Used"
+        case breakdown = "Breakdown"
+        var id: Self { self }
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 SectionHeader(title: "Memory", subtitle: Format.bytes(store.system.memoryTotal))
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Memory used")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    HistoryChart(
-                        series: [.init(
-                            label: "Used",
-                            color: MonitorSection.memory.tint,
-                            values: store.history.elements.map { Double($0.memory.used) }
-                        )],
-                        capacity: store.history.capacity,
-                        yDomain: 0...Double(store.system.memoryTotal),
-                        yLabel: { Format.bytes(UInt64($0)) }
-                    )
-                    .frame(height: 240)
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(display == .used ? "Memory used (colored by pressure)" : "Memory breakdown")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Picker("Display", selection: $display) {
+                            ForEach(MemoryDisplay.allCases) { mode in
+                                Text(mode.rawValue).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .fixedSize()
+                    }
+                    if display == .used {
+                        usedChart
+                    } else {
+                        breakdownChart
+                    }
                 }
 
                 if let memory = store.latest?.memory {
@@ -49,6 +62,101 @@ struct MemoryView: View {
             }
             .padding(24)
         }
+    }
+
+    // MARK: Used chart, segmented by pressure level
+
+    private struct PressureSegment: Identifiable {
+        let id: Int
+        let color: Color
+        let points: [(x: Int, y: Double)]
+    }
+
+    private var usedChart: some View {
+        Chart {
+            ForEach(pressureSegments) { segment in
+                ForEach(segment.points, id: \.x) { point in
+                    AreaMark(
+                        x: .value("Time", point.x),
+                        y: .value("Used", point.y),
+                        series: .value("Area", "area-\(segment.id)"),
+                        stacking: .unstacked
+                    )
+                    .foregroundStyle(.linearGradient(
+                        colors: [segment.color.opacity(0.35), segment.color.opacity(0.03)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ))
+                    .interpolationMethod(.monotone)
+
+                    LineMark(
+                        x: .value("Time", point.x),
+                        y: .value("Used", point.y),
+                        series: .value("Line", "line-\(segment.id)")
+                    )
+                    .foregroundStyle(segment.color)
+                    .lineStyle(StrokeStyle(lineWidth: 1.5))
+                    .interpolationMethod(.monotone)
+                }
+            }
+        }
+        .chartXScale(domain: 0...(store.history.capacity - 1))
+        .chartYScale(domain: 0...Double(store.system.memoryTotal))
+        .chartXAxis(.hidden)
+        .chartYAxis {
+            AxisMarks { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let number = value.as(Double.self) {
+                        Text(Format.bytes(UInt64(number)))
+                    }
+                }
+            }
+        }
+        .frame(height: 240)
+    }
+
+    /// Splits history into runs of equal pressure; each run shares its first
+    /// point with the previous run so the line stays connected.
+    private var pressureSegments: [PressureSegment] {
+        let snapshots = store.history.elements
+        let offset = store.history.capacity - snapshots.count
+        var segments: [PressureSegment] = []
+        var points: [(x: Int, y: Double)] = []
+        var pressure: MemoryPressure?
+
+        func close() {
+            if points.count > 1, let pressure {
+                segments.append(PressureSegment(id: segments.count, color: pressureColor(pressure), points: points))
+            }
+        }
+
+        for (index, snapshot) in snapshots.enumerated() {
+            if snapshot.memory.pressure != pressure {
+                close()
+                points = points.last.map { [$0] } ?? []
+                pressure = snapshot.memory.pressure
+            }
+            points.append((x: index + offset, y: Double(snapshot.memory.used)))
+        }
+        close()
+        return segments
+    }
+
+    private var breakdownChart: some View {
+        let snapshots = store.history.elements
+        return HistoryChart(
+            series: [
+                .init(label: "App", color: .green, values: snapshots.map { Double($0.memory.app) }),
+                .init(label: "Wired", color: .indigo, values: snapshots.map { Double($0.memory.wired) }),
+                .init(label: "Compressed", color: .orange, values: snapshots.map { Double($0.memory.compressed) }),
+                .init(label: "Cached", color: .gray, values: snapshots.map { Double($0.memory.cached) }),
+            ],
+            capacity: store.history.capacity,
+            yDomain: 0...Double(store.system.memoryTotal),
+            yLabel: { Format.bytes(UInt64($0)) }
+        )
+        .frame(height: 240)
     }
 
     private func items(for memory: MemorySnapshot) -> [StatGrid.Item] {
