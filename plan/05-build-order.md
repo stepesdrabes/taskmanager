@@ -12,7 +12,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
    — `CPUSampler` + `Sampler` skeleton returning CPU-only snapshots.
 5. [x] `feat(store): add metrics store with sampling loop`
    — `MetricsStore`, occlusion pause/resume, baseline reset. Temporary debug text proves live numbers.
-6. [ ] `feat(ui): add sidebar navigation with section placeholders`
+6. [x] `feat(ui): add sidebar navigation with section placeholders`
    — `ContentView`, `Section` enum, `SidebarIcon`.
 7. [ ] `feat(ui): add shared chart, sparkline and stat grid components`
    — `HistoryChart`, `Sparkline`, `StatGrid`, `SectionHeader`.

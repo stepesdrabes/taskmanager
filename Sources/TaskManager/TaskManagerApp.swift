@@ -15,7 +15,7 @@ struct TaskManagerApp: App {
 
     var body: some Scene {
         WindowGroup("Task Manager") {
-            LiveDebugView()
+            ContentView()
                 .environment(store)
                 .frame(minWidth: 760, minHeight: 480)
                 .task { store.start() }
@@ -29,29 +29,5 @@ struct TaskManagerApp: App {
                     }
                 }
         }
-    }
-}
-
-// Temporary proof of live sampling until the section views land.
-private struct LiveDebugView: View {
-    @Environment(MetricsStore.self) private var store
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if let cpu = store.latest?.cpu {
-                Text("CPU \(Format.percent(cpu.totalBusy))")
-                    .font(.title2)
-                Text(cpu.coreBusy.map(Format.percent).joined(separator: "  "))
-                Text("\(cpu.processCount) processes · \(cpu.threadCount) threads")
-                Text(String(format: "load %.2f / %.2f / %.2f", cpu.load1, cpu.load5, cpu.load15))
-                Text("up \(Format.uptime(since: store.system.bootTime)) · \(store.system.chipName)")
-            } else {
-                Text("Sampling…")
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .monospacedDigit()
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
