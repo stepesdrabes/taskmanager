@@ -4,8 +4,9 @@ import Foundation
 /// `Snapshot` it returns ever crosses to the main actor.
 nonisolated final class Sampler {
     private let cpu = CPUSampler()
+    private let memory = MemorySampler()
 
     func sample() -> Snapshot {
-        Snapshot(date: Date(), cpu: cpu.sample())
+        Snapshot(date: Date(), cpu: cpu.sample(), memory: memory.sample())
     }
 }
