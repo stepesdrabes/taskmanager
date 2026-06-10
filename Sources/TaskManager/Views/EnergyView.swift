@@ -3,6 +3,7 @@ import SwiftUI
 struct EnergyView: View {
     @Environment(MetricsStore.self) private var store
     @Environment(Localizer.self) private var loc
+    @AppStorage("temperatureUnit") private var temperatureUnit = TemperatureUnit.celsius
 
     var body: some View {
         SectionScrollView(title: loc("section.energy"), subtitle: subtitle) {
@@ -72,7 +73,7 @@ struct EnergyView: View {
             .init(label: loc("energy.powerAdapterLabel"), value: adapterValue(energy)),
             .init(label: loc("energy.batteryHealth"), value: "\(Int((energy.health * 100).rounded()))%"),
             .init(label: loc("energy.cycleCount"), value: "\(energy.cycleCount)"),
-            .init(label: loc("energy.temperature"), value: String(format: "%.1f °C", energy.temperature)),
+            .init(label: loc("energy.temperature"), value: temperatureUnit.format(celsius: energy.temperature)),
             .init(label: loc("energy.voltage"), value: String(format: "%.2f V", energy.voltage)),
             .init(label: loc("energy.capacity"), value: loc("energy.capacityValue", ["current": "\(energy.currentCapacity)", "design": "\(energy.designCapacity)"])),
         ]

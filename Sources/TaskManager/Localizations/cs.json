@@ -31,6 +31,10 @@
   },
 
   "settings": {
+    "general": "Obecné",
+    "appearanceSection": "Vzhled",
+    "behavior": "Chování",
+    "units": "Jednotky",
     "systemLanguage": "Systémový",
     "language": "Jazyk",
     "updateInterval": "Interval aktualizace",
@@ -38,6 +42,16 @@
     "interval1": "1 sekunda",
     "interval2": "2 sekundy",
     "interval5": "5 sekund",
+    "theme": "Motiv",
+    "themeSystem": "Systémový",
+    "themeLight": "Světlý",
+    "themeDark": "Tmavý",
+    "launchAtLogin": "Spustit při přihlášení",
+    "floatWindow": "Okno vždy navrchu",
+    "defaultSection": "Otevřít po spuštění",
+    "temperatureUnit": "Jednotka teploty",
+    "celsius": "Celsia (°C)",
+    "fahrenheit": "Fahrenheita (°F)",
     "historyNote": "Historie: 120 vzorků"
   },
 

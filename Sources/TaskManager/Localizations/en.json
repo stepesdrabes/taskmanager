@@ -31,6 +31,10 @@
   },
 
   "settings": {
+    "general": "General",
+    "appearanceSection": "Appearance",
+    "behavior": "Behavior",
+    "units": "Units",
     "systemLanguage": "System",
     "language": "Language",
     "updateInterval": "Update interval",
@@ -38,6 +42,16 @@
     "interval1": "1 second",
     "interval2": "2 seconds",
     "interval5": "5 seconds",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "launchAtLogin": "Launch at login",
+    "floatWindow": "Keep window in front",
+    "defaultSection": "Open at launch",
+    "temperatureUnit": "Temperature unit",
+    "celsius": "Celsius (°C)",
+    "fahrenheit": "Fahrenheit (°F)",
     "historyNote": "History window: 120 samples"
   },
 
