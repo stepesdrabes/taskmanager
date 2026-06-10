@@ -24,6 +24,8 @@ struct ContentView: View {
         switch selection ?? .cpu {
         case .cpu:
             CPUView()
+        case .memory:
+            MemoryView()
         default:
             PlaceholderView(section: selection ?? .cpu)
         }
