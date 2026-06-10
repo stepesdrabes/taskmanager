@@ -27,7 +27,7 @@ make dev    # swift run, for development
 
 ## How it works
 
-100 % native Swift / SwiftUI / Swift Charts, **zero third-party dependencies**, no Electron, no helpers, no root. Metrics come straight from the OS: Mach host calls for CPU and memory, IOKit for GPU and disk I/O, sysctl routing tables for network — all public-ish, root-free interfaces (details in [`plan/02-metrics-apis.md`](plan/02-metrics-apis.md)).
+100 % native Swift / SwiftUI / Swift Charts, **zero third-party dependencies**, no Electron, no helpers, no root. Metrics come straight from the OS: Mach host calls for CPU and memory, IOKit for GPU, disk I/O and battery, sysctl routing tables for network — all public-ish, root-free interfaces.
 
 The app is unsandboxed and ad-hoc signed (the metric APIs don't work under App Sandbox), which makes it a personal/local tool rather than an App Store candidate.
 

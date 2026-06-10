@@ -8,7 +8,7 @@ code styles rule: do not put over-engineered messages into the code -> only actu
 
 TaskManager — native macOS system monitor (Windows Task Manager style): SwiftUI sidebar with CPU / Memory / GPU / Disk / Network / Processes sections, live charts, per-core CPU grid. Targets macOS 26 only, Apple Silicon. Zero dependencies beyond Apple frameworks (SwiftUI, Charts, IOKit, SystemConfiguration, Darwin).
 
-The full design lives in `plan/` (read `plan/01-overview.md` first); `plan/05-build-order.md` tracks what's built.
+Sections live under `Sources/TaskManager/Views/`, samplers under `Sampling/`, shared data types under `Model/`.
 
 # Build commands
 
@@ -23,7 +23,7 @@ The full design lives in `plan/` (read `plan/01-overview.md` first); `plan/05-bu
 - The app must stay **unsandboxed** with ad-hoc signing and no entitlements — IOKit matching and several sysctls break under App Sandbox.
 - Charts never animate on data updates (1 Hz update jank). Per-core grids use Canvas sparklines, never stacks of `Chart` views.
 - All delta-based rates (CPU ticks, disk/network bytes) discard the first sample after a sampling restart — prevents fake spikes after pause/sleep.
-- macOS 26 degrades network byte counters for non-platform binaries (quantized to 256 B, wrapped at 2^32) — network rates must use 32-bit wrap-safe deltas and totals are session-relative, never "since boot" (see `plan/02-metrics-apis.md`).
+- macOS 26 degrades network byte counters for non-platform binaries (quantized to 256 B, wrapped at 2^32) — network rates must use 32-bit wrap-safe deltas and totals are session-relative, never "since boot".
 - No external package dependencies.
 
 # Adding a metric
