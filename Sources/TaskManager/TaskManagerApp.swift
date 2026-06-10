@@ -5,6 +5,7 @@ import SwiftUI
 @main
 struct TaskManagerApp: App {
     @State private var store = MetricsStore()
+    @State private var localizer = Localizer()
 
     init() {
         // Unbundled binaries (swift run) can't take focus or own the menu bar
@@ -17,6 +18,7 @@ struct TaskManagerApp: App {
         WindowGroup("Task Manager") {
             ContentView()
                 .environment(store)
+                .environment(localizer)
                 .frame(minWidth: 760, minHeight: 480)
                 .task { store.start() }
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeOcclusionStateNotification)) { _ in
@@ -31,18 +33,20 @@ struct TaskManagerApp: App {
         }
         .defaultSize(width: 1000, height: 700)
         .commands {
-            CommandMenu("View") {
-                ForEach(Array(MonitorSection.allCases.enumerated()), id: \.element) { index, section in
-                    Button(section.title) {
+            CommandGroup(replacing: .appSettings) {
+                Button(localizer("section.settings")) {
+                    store.selectedSection = .settings
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
+            CommandMenu(localizer("menu.view")) {
+                ForEach(Array(MonitorSection.metrics.enumerated()), id: \.element) { index, section in
+                    Button(localizer(section.titleKey)) {
                         store.selectedSection = section
                     }
                     .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: .command)
                 }
             }
-        }
-
-        Settings {
-            SettingsView()
         }
     }
 }

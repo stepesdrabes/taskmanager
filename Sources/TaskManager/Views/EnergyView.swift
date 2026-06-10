@@ -2,19 +2,20 @@ import SwiftUI
 
 struct EnergyView: View {
     @Environment(MetricsStore.self) private var store
+    @Environment(Localizer.self) private var loc
 
     var body: some View {
-        SectionScrollView(title: "Energy", subtitle: subtitle) {
+        SectionScrollView(title: loc("section.energy"), subtitle: subtitle) {
             if let energy = store.latest?.energy {
                 chargeIndicator(energy)
 
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("Power draw")
+                    Text(loc("energy.powerDraw"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     HistoryChart(
                         series: [.init(
-                            label: "Power",
+                            label: loc("energy.power"),
                             color: MonitorSection.energy.tint,
                             values: store.history.elements.map { $0.energy?.powerWatts ?? 0 }
                         )],
@@ -27,9 +28,9 @@ struct EnergyView: View {
                 StatGrid(items: items(for: energy))
             } else {
                 ContentUnavailableView(
-                    "No Battery",
+                    loc("energy.noBattery"),
                     systemImage: "bolt.slash",
-                    description: Text("This Mac has no battery to report on.")
+                    description: Text(loc("energy.noBatteryDesc"))
                 )
                 .padding(.top, 60)
             }
@@ -38,7 +39,10 @@ struct EnergyView: View {
 
     private var subtitle: String {
         guard let energy = store.latest?.energy else { return "" }
-        return "\(Int((energy.health * 100).rounded()))% health · \(energy.cycleCount) cycles"
+        return loc("energy.subtitle", [
+            "health": "\(Int((energy.health * 100).rounded()))",
+            "cycles": "\(energy.cycleCount)",
+        ])
     }
 
     private func chargeIndicator(_ energy: EnergySnapshot) -> some View {
@@ -60,44 +64,44 @@ struct EnergyView: View {
 
     private func items(for energy: EnergySnapshot) -> [StatGrid.Item] {
         [
-            .init(label: "Charge", value: "\(Int((energy.charge * 100).rounded()))%"),
-            .init(label: "Power source", value: energy.onAC ? "Power Adapter" : "Battery"),
-            .init(label: "Status", value: statusLabel(energy)),
+            .init(label: loc("energy.charge"), value: "\(Int((energy.charge * 100).rounded()))%"),
+            .init(label: loc("energy.powerSource"), value: energy.onAC ? loc("energy.powerAdapter") : loc("energy.battery")),
+            .init(label: loc("energy.status"), value: statusLabel(energy)),
             .init(label: timeLabel(energy), value: timeValue(energy)),
-            .init(label: "Power draw", value: String(format: "%.1f W", energy.powerWatts)),
-            .init(label: "Power adapter", value: adapterValue(energy)),
-            .init(label: "Battery health", value: "\(Int((energy.health * 100).rounded()))%"),
-            .init(label: "Cycle count", value: "\(energy.cycleCount)"),
-            .init(label: "Temperature", value: String(format: "%.1f °C", energy.temperature)),
-            .init(label: "Voltage", value: String(format: "%.2f V", energy.voltage)),
-            .init(label: "Capacity", value: "\(energy.currentCapacity) of \(energy.designCapacity) mAh"),
+            .init(label: loc("energy.powerDraw"), value: String(format: "%.1f W", energy.powerWatts)),
+            .init(label: loc("energy.powerAdapterLabel"), value: adapterValue(energy)),
+            .init(label: loc("energy.batteryHealth"), value: "\(Int((energy.health * 100).rounded()))%"),
+            .init(label: loc("energy.cycleCount"), value: "\(energy.cycleCount)"),
+            .init(label: loc("energy.temperature"), value: String(format: "%.1f °C", energy.temperature)),
+            .init(label: loc("energy.voltage"), value: String(format: "%.2f V", energy.voltage)),
+            .init(label: loc("energy.capacity"), value: loc("energy.capacityValue", ["current": "\(energy.currentCapacity)", "design": "\(energy.designCapacity)"])),
         ]
     }
 
     private func adapterValue(_ energy: EnergySnapshot) -> String {
-        guard energy.onAC else { return "Not connected" }
-        if let watts = energy.adapterWatts, watts > 0 { return "\(watts) W" }
-        return "Connected"
+        guard energy.onAC else { return loc("energy.notConnected") }
+        if let watts = energy.adapterWatts, watts > 0 { return loc("energy.adapterWatts", ["watts": "\(watts)"]) }
+        return loc("energy.connected")
     }
 
     private func statusLabel(_ energy: EnergySnapshot) -> String {
         switch energy.status {
-        case .charging: "Charging"
-        case .charged: "Fully charged"
-        case .onBattery: "On battery"
-        case .pluggedNotCharging: "Plugged in, not charging"
+        case .charging: loc("energy.charging")
+        case .charged: loc("energy.fullyCharged")
+        case .onBattery: loc("energy.onBattery")
+        case .pluggedNotCharging: loc("energy.pluggedNotCharging")
         }
     }
 
     private func timeLabel(_ energy: EnergySnapshot) -> String {
-        energy.status == .charging ? "Time to full" : "Time remaining"
+        energy.status == .charging ? loc("energy.timeToFull") : loc("energy.timeRemaining")
     }
 
     private func timeValue(_ energy: EnergySnapshot) -> String {
         let minutes = energy.status == .charging ? energy.timeToFull : energy.timeToEmpty
         switch minutes {
-        case ..<0: return "Calculating…"
-        case 0: return energy.status == .charged ? "—" : "Calculating…"
+        case ..<0: return loc("energy.calculating")
+        case 0: return energy.status == .charged ? loc("common.unavailable") : loc("energy.calculating")
         default: return String(format: "%d:%02d", minutes / 60, minutes % 60)
         }
     }

@@ -2,16 +2,17 @@ import SwiftUI
 
 struct GPUView: View {
     @Environment(MetricsStore.self) private var store
+    @Environment(Localizer.self) private var loc
 
     var body: some View {
-        SectionScrollView(title: "GPU", subtitle: store.system.gpuName ?? store.system.chipName) {
+        SectionScrollView(title: loc("section.gpu"), subtitle: store.system.gpuName ?? store.system.chipName) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("% Utilization")
+                Text(loc("gpu.utilizationPercent"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HistoryChart(
                     series: [.init(
-                        label: "Device",
+                        label: loc("gpu.device"),
                         color: MonitorSection.gpu.tint,
                         values: store.history.elements.map { ($0.gpu?.device ?? 0) * 100 }
                     )],
@@ -23,10 +24,10 @@ struct GPUView: View {
             }
 
             HStack(spacing: 16) {
-                auxSparkline(label: "Renderer", value: store.latest?.gpu?.renderer) {
+                auxSparkline(label: loc("gpu.renderer"), value: store.latest?.gpu?.renderer) {
                     $0.gpu?.renderer
                 }
-                auxSparkline(label: "Tiler", value: store.latest?.gpu?.tiler) {
+                auxSparkline(label: loc("gpu.tiler"), value: store.latest?.gpu?.tiler) {
                     $0.gpu?.tiler
                 }
             }
@@ -46,7 +47,7 @@ struct GPUView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(value.map(Format.percent) ?? "—")
+                Text(value.map(Format.percent) ?? loc("common.unavailable"))
                     .font(.caption)
                     .monospacedDigit()
             }
@@ -63,12 +64,13 @@ struct GPUView: View {
 
     private var items: [StatGrid.Item] {
         let gpu = store.latest?.gpu
+        let dash = loc("common.unavailable")
         return [
-            .init(label: "Utilization", value: gpu?.device.map(Format.percent) ?? "—"),
-            .init(label: "Shared memory in use", value: gpu?.usedMemory.map(Format.bytes) ?? "—"),
-            .init(label: "Shared memory allocated", value: gpu?.allocatedMemory.map(Format.bytes) ?? "—"),
-            .init(label: "Cores", value: store.system.gpuCoreCount.map(String.init) ?? "—"),
-            .init(label: "Type", value: "Integrated (shared memory)"),
+            .init(label: loc("gpu.utilization"), value: gpu?.device.map(Format.percent) ?? dash),
+            .init(label: loc("gpu.sharedInUse"), value: gpu?.usedMemory.map(Format.bytes) ?? dash),
+            .init(label: loc("gpu.sharedAllocated"), value: gpu?.allocatedMemory.map(Format.bytes) ?? dash),
+            .init(label: loc("gpu.cores"), value: store.system.gpuCoreCount.map(String.init) ?? dash),
+            .init(label: loc("gpu.type"), value: loc("gpu.integrated")),
         ]
     }
 }

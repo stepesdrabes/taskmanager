@@ -3,27 +3,25 @@ import SwiftUI
 
 struct MemoryView: View {
     @Environment(MetricsStore.self) private var store
+    @Environment(Localizer.self) private var loc
     @State private var display: MemoryDisplay = .used
     @State private var hoverIndex: Int?
 
-    private enum MemoryDisplay: String, CaseIterable, Identifiable {
-        case used = "Used"
-        case breakdown = "Breakdown"
-        var id: Self { self }
+    private enum MemoryDisplay: Hashable {
+        case used, breakdown
     }
 
     var body: some View {
-        SectionScrollView(title: "Memory", subtitle: Format.bytes(store.system.memoryTotal)) {
+        SectionScrollView(title: loc("section.memory"), subtitle: Format.bytes(store.system.memoryTotal)) {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(display == .used ? "Memory used (colored by pressure)" : "Memory breakdown")
+                    Text(display == .used ? loc("memory.usedColored") : loc("memory.breakdownTitle"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Picker("Display", selection: $display) {
-                        ForEach(MemoryDisplay.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
+                    Picker(loc("memory.display"), selection: $display) {
+                        Text(loc("memory.used")).tag(MemoryDisplay.used)
+                        Text(loc("memory.breakdown")).tag(MemoryDisplay.breakdown)
                     }
                     .pickerStyle(.segmented)
                     .labelsHidden()
@@ -39,10 +37,10 @@ struct MemoryView: View {
             if let memory = store.latest?.memory {
                 CompositionBar(
                     segments: [
-                        .init(label: "App", value: memory.app, color: .green),
-                        .init(label: "Wired", value: memory.wired, color: .indigo),
-                        .init(label: "Compressed", value: memory.compressed, color: .orange),
-                        .init(label: "Cached", value: memory.cached, color: .gray),
+                        .init(label: loc("memory.app"), value: memory.app, color: .green),
+                        .init(label: loc("memory.wired"), value: memory.wired, color: .indigo),
+                        .init(label: loc("memory.compressed"), value: memory.compressed, color: .orange),
+                        .init(label: loc("memory.cached"), value: memory.cached, color: .gray),
                     ],
                     total: store.system.memoryTotal
                 )
@@ -53,7 +51,7 @@ struct MemoryView: View {
                     Circle()
                         .fill(pressureColor(memory.pressure))
                         .frame(width: 8, height: 8)
-                    Text("Memory pressure: \(pressureLabel(memory.pressure))")
+                    Text(loc("memory.pressureInline", ["state": pressureLabel(memory.pressure)]))
                         .font(.callout)
                 }
             }
@@ -160,8 +158,8 @@ struct MemoryView: View {
         guard snapshots.indices.contains(i) else { return [] }
         let memory = snapshots[i].memory
         return [
-            .init(label: "Used", color: MonitorSection.memory.tint, value: Format.bytes(memory.used)),
-            .init(label: "Pressure", color: pressureColor(memory.pressure), value: pressureLabel(memory.pressure)),
+            .init(label: loc("memory.used"), color: MonitorSection.memory.tint, value: Format.bytes(memory.used)),
+            .init(label: loc("memory.pressureTooltip"), color: pressureColor(memory.pressure), value: pressureLabel(memory.pressure)),
         ]
     }
 
@@ -170,10 +168,10 @@ struct MemoryView: View {
         let snapshots = store.history.elements
         return HistoryChart(
             series: [
-                .init(label: "App", color: .green, values: snapshots.map { Double($0.memory.app) }),
-                .init(label: "Wired", color: .indigo, values: snapshots.map { Double($0.memory.wired) }),
-                .init(label: "Compressed", color: .orange, values: snapshots.map { Double($0.memory.compressed) }),
-                .init(label: "Cached", color: .gray, values: snapshots.map { Double($0.memory.cached) }),
+                .init(label: loc("memory.app"), color: .green, values: snapshots.map { Double($0.memory.app) }),
+                .init(label: loc("memory.wired"), color: .indigo, values: snapshots.map { Double($0.memory.wired) }),
+                .init(label: loc("memory.compressed"), color: .orange, values: snapshots.map { Double($0.memory.compressed) }),
+                .init(label: loc("memory.cached"), color: .gray, values: snapshots.map { Double($0.memory.cached) }),
             ],
             capacity: store.history.capacity,
             yDomain: 0...Double(store.system.memoryTotal),
@@ -185,12 +183,12 @@ struct MemoryView: View {
 
     private func items(for memory: MemorySnapshot) -> [StatGrid.Item] {
         [
-            .init(label: "Memory used", value: Format.bytes(memory.used)),
-            .init(label: "App memory", value: Format.bytes(memory.app)),
-            .init(label: "Wired", value: Format.bytes(memory.wired)),
-            .init(label: "Compressed", value: Format.bytes(memory.compressed)),
-            .init(label: "Cached files", value: Format.bytes(memory.cached)),
-            .init(label: "Swap used", value: "\(Format.bytes(memory.swapUsed)) of \(Format.bytes(memory.swapTotal)) allocated"),
+            .init(label: loc("memory.memoryUsed"), value: Format.bytes(memory.used)),
+            .init(label: loc("memory.appMemory"), value: Format.bytes(memory.app)),
+            .init(label: loc("memory.wired"), value: Format.bytes(memory.wired)),
+            .init(label: loc("memory.compressed"), value: Format.bytes(memory.compressed)),
+            .init(label: loc("memory.cachedFiles"), value: Format.bytes(memory.cached)),
+            .init(label: loc("memory.swapUsed"), value: loc("memory.swap", ["used": Format.bytes(memory.swapUsed), "total": Format.bytes(memory.swapTotal)])),
         ]
     }
 
@@ -204,9 +202,9 @@ struct MemoryView: View {
 
     private func pressureLabel(_ pressure: MemoryPressure) -> String {
         switch pressure {
-        case .normal: "Normal"
-        case .warning: "Warning"
-        case .critical: "Critical"
+        case .normal: loc("memory.pressureNormal")
+        case .warning: loc("memory.pressureWarning")
+        case .critical: loc("memory.pressureCritical")
         }
     }
 }

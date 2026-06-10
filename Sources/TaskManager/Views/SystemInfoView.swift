@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SystemInfoView: View {
     @Environment(MetricsStore.self) private var store
+    @Environment(Localizer.self) private var loc
     @State private var report: SystemReport?
     @State private var search = ""
 
@@ -31,8 +32,8 @@ struct SystemInfoView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .navigationTitle("System Info")
-        .searchable(text: $search, prompt: "Search")
-        .task { report = SystemReport.gather(system: store.system) }
+        .navigationTitle(loc("section.systemInfo"))
+        .searchable(text: $search, prompt: Text(loc("sysinfo.search")))
+        .task(id: loc.languageCode) { report = SystemReport.gather(system: store.system, loc: loc) }
     }
 }

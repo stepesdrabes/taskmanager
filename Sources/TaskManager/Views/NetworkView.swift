@@ -2,22 +2,23 @@ import SwiftUI
 
 struct NetworkView: View {
     @Environment(MetricsStore.self) private var store
+    @Environment(Localizer.self) private var loc
     @State private var selectedID: String?
 
     var body: some View {
         SectionScrollView(
-            title: "Network",
-            subtitle: selected.map { "\($0.displayName) (\($0.id))" } ?? ""
+            title: loc("section.network"),
+            subtitle: selected.map { loc("network.adapterName", ["name": $0.displayName, "id": $0.id]) } ?? ""
         ) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 16) {
-                    legendDot(color: .blue, label: "Receive")
-                    legendDot(color: .orange, label: "Send")
+                    legendDot(color: .blue, label: loc("network.receive"))
+                    legendDot(color: .orange, label: loc("network.send"))
                     Spacer()
                     if activeInterfaces.count > 1 {
-                        Picker("Interface", selection: pickerBinding) {
+                        Picker(loc("network.interface"), selection: pickerBinding) {
                             ForEach(activeInterfaces) { interface in
-                                Text("\(interface.displayName) (\(interface.id))").tag(interface.id)
+                                Text(loc("network.adapterName", ["name": interface.displayName, "id": interface.id])).tag(interface.id)
                             }
                         }
                         .labelsHidden()
@@ -26,8 +27,8 @@ struct NetworkView: View {
                 }
                 HistoryChart(
                     series: [
-                        .init(label: "Receive", color: .blue, values: series(\.rxPerSec)),
-                        .init(label: "Send", color: .orange, values: series(\.txPerSec)),
+                        .init(label: loc("network.receive"), color: .blue, values: series(\.rxPerSec)),
+                        .init(label: loc("network.send"), color: .orange, values: series(\.txPerSec)),
                     ],
                     capacity: store.history.capacity,
                     yLabel: { Format.storageBytesPerSecond($0) }
@@ -71,13 +72,13 @@ struct NetworkView: View {
 
     private func items(for interface: InterfaceSnapshot) -> [StatGrid.Item] {
         [
-            .init(label: "Receive", value: Format.storageBytesPerSecond(interface.rxPerSec)),
-            .init(label: "Send", value: Format.storageBytesPerSecond(interface.txPerSec)),
-            .init(label: "Received (session)", value: Format.storageBytes(interface.totalRx)),
-            .init(label: "Sent (session)", value: Format.storageBytes(interface.totalTx)),
-            .init(label: "Adapter", value: "\(interface.displayName) (\(interface.id))"),
-            .init(label: "IPv4", value: interface.ipv4.isEmpty ? "—" : interface.ipv4.joined(separator: ", ")),
-            .init(label: "IPv6", value: interface.ipv6.first ?? "—"),
+            .init(label: loc("network.receive"), value: Format.storageBytesPerSecond(interface.rxPerSec)),
+            .init(label: loc("network.send"), value: Format.storageBytesPerSecond(interface.txPerSec)),
+            .init(label: loc("network.receivedSession"), value: Format.storageBytes(interface.totalRx)),
+            .init(label: loc("network.sentSession"), value: Format.storageBytes(interface.totalTx)),
+            .init(label: loc("network.adapter"), value: loc("network.adapterName", ["name": interface.displayName, "id": interface.id])),
+            .init(label: loc("network.ipv4"), value: interface.ipv4.isEmpty ? loc("common.unavailable") : interface.ipv4.joined(separator: ", ")),
+            .init(label: loc("network.ipv6"), value: interface.ipv6.first ?? loc("common.unavailable")),
         ]
     }
 

@@ -2,10 +2,11 @@ import SwiftUI
 
 struct DiskView: View {
     @Environment(MetricsStore.self) private var store
+    @Environment(Localizer.self) private var loc
 
     var body: some View {
         SectionScrollView(
-            title: "Disk",
+            title: loc("section.disk"),
             subtitle: activeDisks.map(\.id).joined(separator: " · ")
         ) {
             ForEach(activeDisks) { disk in
@@ -13,7 +14,7 @@ struct DiskView: View {
             }
 
             if let volumes = store.latest?.volumes, !volumes.isEmpty {
-                Text("Volumes")
+                Text(loc("disk.volumes"))
                     .font(.title3.weight(.semibold))
                 ForEach(volumes) { volume in
                     volumeRow(volume)
@@ -33,14 +34,14 @@ struct DiskView: View {
                 Text(disk.id)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                legendDot(color: .green, label: "Read")
-                legendDot(color: .red, label: "Write")
+                legendDot(color: .green, label: loc("disk.read"))
+                legendDot(color: .red, label: loc("disk.write"))
                 Spacer()
             }
             HistoryChart(
                 series: [
-                    .init(label: "Read", color: .green, values: series(for: disk.id, \.readPerSec)),
-                    .init(label: "Write", color: .red, values: series(for: disk.id, \.writePerSec)),
+                    .init(label: loc("disk.read"), color: .green, values: series(for: disk.id, \.readPerSec)),
+                    .init(label: loc("disk.write"), color: .red, values: series(for: disk.id, \.writePerSec)),
                 ],
                 capacity: store.history.capacity,
                 yLabel: { Format.storageBytesPerSecond($0) }
@@ -48,10 +49,10 @@ struct DiskView: View {
             .frame(height: 180)
 
             StatGrid(items: [
-                .init(label: "Read speed", value: Format.storageBytesPerSecond(disk.readPerSec)),
-                .init(label: "Write speed", value: Format.storageBytesPerSecond(disk.writePerSec)),
-                .init(label: "Total read since boot", value: Format.storageBytes(disk.totalRead)),
-                .init(label: "Total written since boot", value: Format.storageBytes(disk.totalWritten)),
+                .init(label: loc("disk.readSpeed"), value: Format.storageBytesPerSecond(disk.readPerSec)),
+                .init(label: loc("disk.writeSpeed"), value: Format.storageBytesPerSecond(disk.writePerSec)),
+                .init(label: loc("disk.totalRead"), value: Format.storageBytes(disk.totalRead)),
+                .init(label: loc("disk.totalWritten"), value: Format.storageBytes(disk.totalWritten)),
             ])
             .padding(.top, 12)
         }
@@ -63,7 +64,7 @@ struct DiskView: View {
                 Text(volume.name)
                     .font(.callout)
                 Spacer()
-                Text("\(Format.storageBytes(volume.used)) of \(Format.storageBytes(volume.total)) used")
+                Text(loc("disk.volumeUsage", ["used": Format.storageBytes(volume.used), "total": Format.storageBytes(volume.total)]))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()

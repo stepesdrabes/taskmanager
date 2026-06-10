@@ -1,22 +1,16 @@
 import SwiftUI
 
 enum MonitorSection: String, CaseIterable, Identifiable {
-    case cpu, memory, gpu, disk, network, energy, processes, systemInfo
+    case cpu, memory, gpu, disk, network, energy, processes, systemInfo, settings
 
     var id: Self { self }
 
-    var title: String {
-        switch self {
-        case .cpu: "CPU"
-        case .memory: "Memory"
-        case .gpu: "GPU"
-        case .disk: "Disk"
-        case .network: "Network"
-        case .energy: "Energy"
-        case .processes: "Processes"
-        case .systemInfo: "System Info"
-        }
-    }
+    /// The metric sections shown in the main sidebar list (Settings is pinned
+    /// separately at the bottom).
+    static let metrics: [MonitorSection] = allCases.filter { $0 != .settings }
+
+    /// Localization key for the section's display name.
+    var titleKey: String { "section.\(rawValue)" }
 
     var symbol: String {
         switch self {
@@ -28,6 +22,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .energy: "bolt.fill"
         case .processes: "list.bullet.rectangle"
         case .systemInfo: "desktopcomputer"
+        case .settings: "gearshape"
         }
     }
 
@@ -41,6 +36,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .energy: .yellow
         case .processes: .gray
         case .systemInfo: .indigo
+        case .settings: .gray
         }
     }
 }

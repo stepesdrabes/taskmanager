@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 struct ProcessesView: View {
     @Environment(MetricsStore.self) private var store
+    @Environment(Localizer.self) private var loc
     @State private var sortOrder = [KeyPathComparator(\ProcessRow.cpu, order: .reverse)]
     @State private var selection: ProcessRow.ID?
     @State private var searchText = ""
@@ -11,7 +12,7 @@ struct ProcessesView: View {
 
     var body: some View {
         Table(rows, selection: $selection, sortOrder: $sortOrder) {
-            TableColumn("Name", value: \.name) { row in
+            TableColumn(loc("processes.name"), value: \.name) { row in
                 HStack(spacing: 6) {
                     Image(nsImage: ProcessIconCache.shared.icon(for: row))
                         .resizable()
@@ -19,53 +20,53 @@ struct ProcessesView: View {
                     Text(row.name)
                 }
             }
-            TableColumn("PID", value: \.id) { row in
+            TableColumn(loc("processes.pid"), value: \.id) { row in
                 Text(verbatim: "\(row.id)")
                     .monospacedDigit()
             }
             .width(min: 50, ideal: 60, max: 80)
-            TableColumn("CPU %", value: \.cpu) { row in
+            TableColumn(loc("processes.cpu"), value: \.cpu) { row in
                 Text(String(format: "%.1f", row.cpu * 100))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .width(min: 60, ideal: 70, max: 90)
-            TableColumn("Memory", value: \.memory) { row in
+            TableColumn(loc("processes.memory"), value: \.memory) { row in
                 Text(Format.bytes(row.memory))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .width(min: 70, ideal: 90, max: 120)
-            TableColumn("Disk", value: \.diskPerSec) { row in
-                Text(row.diskPerSec > 0 ? Format.storageBytesPerSecond(row.diskPerSec) : "—")
+            TableColumn(loc("processes.disk"), value: \.diskPerSec) { row in
+                Text(row.diskPerSec > 0 ? Format.storageBytesPerSecond(row.diskPerSec) : loc("common.unavailable"))
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .width(min: 70, ideal: 100, max: 130)
         }
-        .searchable(text: $searchText, prompt: "Search processes")
-        .navigationTitle("Processes")
+        .searchable(text: $searchText, prompt: Text(loc("processes.search")))
+        .navigationTitle(loc("section.processes"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("End Task", systemImage: "xmark.circle") {
+                Button(loc("processes.endTask"), systemImage: "xmark.circle") {
                     signalSelected(SIGTERM)
                 }
                 .disabled(selection == nil)
-                .help("Ask the process to quit (SIGTERM)")
+                .help(loc("processes.endTaskHelp"))
             }
 
             ToolbarItem(placement: .primaryAction) {
-                Button("Force Kill", systemImage: "bolt.circle") {
+                Button(loc("processes.forceKill"), systemImage: "bolt.circle") {
                     signalSelected(SIGKILL)
                 }
                 .disabled(selection == nil)
-                .help("Kill the process immediately (SIGKILL)")
+                .help(loc("processes.forceKillHelp"))
             }
         }
-        .alert("Not permitted", isPresented: $signalFailed) {
-            Button("OK", role: .cancel) {}
+        .alert(loc("processes.notPermitted"), isPresented: $signalFailed) {
+            Button(loc("processes.ok"), role: .cancel) {}
         } message: {
-            Text("This process can't be terminated by the current user.")
+            Text(loc("processes.cantTerminate"))
         }
         .onAppear { store.startProcessSampling() }
         .onDisappear { store.stopProcessSampling() }
