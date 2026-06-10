@@ -30,4 +30,4 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
 19. [x] `docs: update readme and claude.md to match implementation`
 20. [x] `feat(processes): add process sampler`
 21. [x] `feat(processes): add sortable process table with end task`
-22. [ ] `fix(ui): polish spacing, tints and dark mode` — the eyeball pass
+22. [x] `fix(ui): polish spacing, tints and dark mode` — the eyeball pass

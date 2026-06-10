@@ -29,6 +29,7 @@ struct TaskManagerApp: App {
                     }
                 }
         }
+        .defaultSize(width: 1000, height: 700)
         .commands {
             CommandMenu("View") {
                 ForEach(Array(MonitorSection.allCases.enumerated()), id: \.element) { index, section in
