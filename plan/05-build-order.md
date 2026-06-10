@@ -4,7 +4,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
 
 1. [x] `chore: init swift package with minimal app window`
    — `git init`, `.gitignore` (`.build/`, `build/`, `.DS_Store`), `Package.swift`, `TaskManagerApp.swift` showing an empty window incl. activation-policy fix. `swift run` shows a focusable window.
-2. [ ] `feat(build): add makefile and app bundle packaging`
+2. [x] `feat(build): add makefile and app bundle packaging`
    — Makefile, `Support/Info.plist`, ad-hoc codesign. `make run` launches the bundle with Dock icon.
 3. [ ] `feat(model): add snapshot types, ring buffer and system info`
    — `Snapshots.swift`, `RingBuffer.swift`, `SystemInfo.swift`, `Formatters.swift`.
