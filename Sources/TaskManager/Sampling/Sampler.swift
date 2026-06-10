@@ -7,6 +7,7 @@ nonisolated final class Sampler {
     private let memory = MemorySampler()
     private let gpu = GPUSampler()
     private let disk = DiskSampler()
+    private let network = NetworkSampler()
 
     func sample() -> Snapshot {
         let storage = disk.sample()
@@ -16,7 +17,8 @@ nonisolated final class Sampler {
             memory: memory.sample(),
             gpu: gpu.sample(),
             disks: storage.disks,
-            volumes: storage.volumes
+            volumes: storage.volumes,
+            interfaces: network.sample()
         )
     }
 }

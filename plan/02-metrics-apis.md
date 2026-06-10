@@ -76,6 +76,8 @@ Report **per physical disk** (e.g. `disk0`) — all APFS volumes in a container 
 
 > Why not `getifaddrs` for counters: its `if_data` counters are `u_int32_t` and wrap every 4 GiB — minutes on a fast link. Same for `ifi_baudrate` (caps at ~4.3 Gbps). Use `getifaddrs` only for **addresses** (`AF_INET`/`AF_INET6` + `getnameinfo(NI_NUMERICHOST)`).
 
+> **macOS 26 caveat (found during implementation, verified by hexdump on 26.3):** for non-platform binaries the kernel degrades the `if_data64` *byte* counters anyway — quantized to 256 B and wrapped at 2^32. Packet counters and baudrate stay exact; platform binaries (netstat) get full values. Consequence: compute rates with 32-bit wrap-safe deltas (`new &- old`, discard deltas > 2 GiB as resets), and accumulate display totals since sampling start — true since-boot byte totals are not available to this app.
+
 - **Primary interface**: `SCDynamicStoreCopyValue(nil, "State:/Network/Global/IPv4")` → `"PrimaryInterface"` (e.g. `"en0"`).
 - **Display names**: `SCNetworkInterfaceCopyAll()` → match BSD name → `SCNetworkInterfaceGetLocalizedDisplayName` ("Wi-Fi", "Thunderbolt Ethernet").
 - **SSID**: requires Location Services authorization since Sonoma — skipped by design. (RSSI/channel via CoreWLAN would work without it if ever wanted.)

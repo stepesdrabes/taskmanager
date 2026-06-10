@@ -24,7 +24,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
 13. [x] `feat(gpu): add gpu view`
 14. [x] `feat(disk): add disk sampler with per-disk io rates and volumes`
 15. [x] `feat(disk): add disk view with throughput chart and capacity bars`
-16. [ ] `feat(network): add network sampler with primary interface detection`
+16. [x] `feat(network): add network sampler with primary interface detection`
 17. [ ] `feat(network): add network view`
 18. [ ] `feat(settings): add update interval setting and section shortcuts`
 19. [ ] `docs: update readme and claude.md to match implementation`

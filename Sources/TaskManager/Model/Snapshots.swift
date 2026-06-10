@@ -7,6 +7,19 @@ nonisolated struct Snapshot: Sendable {
     let gpu: GPUSnapshot?
     let disks: [DiskSnapshot]
     let volumes: [VolumeSnapshot]
+    let interfaces: [InterfaceSnapshot]
+}
+
+nonisolated struct InterfaceSnapshot: Sendable, Identifiable {
+    let id: String           // BSD name, e.g. "en0"
+    let displayName: String  // "Wi-Fi", "Thunderbolt Ethernet"
+    let rxPerSec: Double
+    let txPerSec: Double
+    let totalRx: UInt64      // accumulated since sampling started (see NetworkSampler)
+    let totalTx: UInt64
+    let ipv4: [String]
+    let ipv6: [String]       // non-link-local only
+    let isPrimary: Bool
 }
 
 nonisolated struct DiskSnapshot: Sendable, Identifiable {
