@@ -16,26 +16,33 @@ struct HistoryChart: View {
     var yDomain: ClosedRange<Double>?            // nil → 0...niceMax(window max)
     var yLabel: (Double) -> String = { $0.formatted() }
 
+    /// Translucent fills only read well with a single series; multiple filled
+    /// areas overlap into muddy artifacts, so 2+ series render as lines only.
+    private var showFill: Bool { series.count == 1 }
+
     var body: some View {
         Chart {
             ForEach(series) { s in
                 let offset = capacity - s.values.count
                 ForEach(Array(s.values.enumerated()), id: \.offset) { index, value in
-                    AreaMark(
-                        x: .value("Time", index + offset),
-                        y: .value(s.label, value),
-                        stacking: .unstacked
-                    )
-                    .foregroundStyle(.linearGradient(
-                        colors: [s.color.opacity(0.35), s.color.opacity(0.03)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ))
-                    .interpolationMethod(.monotone)
+                    if showFill {
+                        AreaMark(
+                            x: .value("Time", index + offset),
+                            y: .value("Value", value),
+                            series: .value("Series", s.label),
+                            stacking: .unstacked
+                        )
+                        .foregroundStyle(.linearGradient(
+                            colors: [s.color.opacity(0.35), s.color.opacity(0.03)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ))
+                        .interpolationMethod(.monotone)
+                    }
 
                     LineMark(
                         x: .value("Time", index + offset),
-                        y: .value(s.label, value),
+                        y: .value("Value", value),
                         series: .value("Series", s.label)
                     )
                     .foregroundStyle(s.color)
