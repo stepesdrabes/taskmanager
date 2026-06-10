@@ -14,8 +14,18 @@ struct ContentView: View {
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 210, max: 280)
         } detail: {
-            PlaceholderView(section: selection ?? .cpu)
+            detailView
                 .navigationTitle((selection ?? .cpu).title)
+        }
+    }
+
+    @ViewBuilder
+    private var detailView: some View {
+        switch selection ?? .cpu {
+        case .cpu:
+            CPUView()
+        default:
+            PlaceholderView(section: selection ?? .cpu)
         }
     }
 }
