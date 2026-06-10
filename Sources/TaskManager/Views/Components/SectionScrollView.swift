@@ -25,17 +25,10 @@ struct SectionScrollView<Content: View>: View {
                 scrolledPastHeader = pastHeader
             }
         }
-        // Leading toolbar title, revealed only once the big header has scrolled
-        // away (so the two are never visible at once), fading in as it appears.
-        .toolbar {
-            ToolbarItem(placement: .navigation) {
-                Text(title)
-                    .font(.headline)
-                    .opacity(scrolledPastHeader ? 1 : 0)
-                    .offset(y: scrolledPastHeader ? 0 : 6)
-                    .animation(.easeOut(duration: 0.22), value: scrolledPastHeader)
-                    .accessibilityHidden(!scrolledPastHeader)
-            }
-        }
+        // Plain native toolbar title, shown only once the big header has
+        // scrolled away — so the two are never visible at once. (A custom
+        // toolbar item would let it animate, but picks up a glass pill in
+        // macOS 26 and lets the "Task Manager" window title leak through.)
+        .navigationTitle(scrolledPastHeader ? title : "")
     }
 }
