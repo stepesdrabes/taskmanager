@@ -88,15 +88,26 @@ struct ProcessesView: View {
     }
 }
 
-/// Row icons: running applications report their own icon; everything else
-/// falls back to the executable's file icon, cached by path.
+/// Row icons resolved once per pid and cached — the lookups (NSRunningApplication,
+/// NSWorkspace.icon) are far too expensive to run for every visible row on each
+/// 2 s refresh. Running apps report their own icon; everything else falls back to
+/// the executable's file icon (shared across pids of the same binary).
 @MainActor
 private final class ProcessIconCache {
     static let shared = ProcessIconCache()
+    private var byPID: [pid_t: NSImage] = [:]
     private var byPath: [String: NSImage] = [:]
     private lazy var generic = NSWorkspace.shared.icon(for: .unixExecutable)
 
     func icon(for row: ProcessRow) -> NSImage {
+        if let cached = byPID[row.id] { return cached }
+        if byPID.count > 4096 { byPID.removeAll(keepingCapacity: true) }
+        let resolved = resolve(row)
+        byPID[row.id] = resolved
+        return resolved
+    }
+
+    private func resolve(_ row: ProcessRow) -> NSImage {
         if let app = NSRunningApplication(processIdentifier: row.id), let icon = app.icon {
             return icon
         }
