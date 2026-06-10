@@ -65,12 +65,19 @@ struct EnergyView: View {
             .init(label: "Status", value: statusLabel(energy)),
             .init(label: timeLabel(energy), value: timeValue(energy)),
             .init(label: "Power draw", value: String(format: "%.1f W", energy.powerWatts)),
+            .init(label: "Power adapter", value: adapterValue(energy)),
             .init(label: "Battery health", value: "\(Int((energy.health * 100).rounded()))%"),
             .init(label: "Cycle count", value: "\(energy.cycleCount)"),
             .init(label: "Temperature", value: String(format: "%.1f °C", energy.temperature)),
             .init(label: "Voltage", value: String(format: "%.2f V", energy.voltage)),
             .init(label: "Capacity", value: "\(energy.currentCapacity) of \(energy.designCapacity) mAh"),
         ]
+    }
+
+    private func adapterValue(_ energy: EnergySnapshot) -> String {
+        guard energy.onAC else { return "Not connected" }
+        if let watts = energy.adapterWatts, watts > 0 { return "\(watts) W" }
+        return "Connected"
     }
 
     private func statusLabel(_ energy: EnergySnapshot) -> String {

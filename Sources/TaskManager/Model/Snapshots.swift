@@ -18,7 +18,9 @@ nonisolated struct EnergySnapshot: Sendable {
     let isCharging: Bool
     let isFullyCharged: Bool
     let onAC: Bool
-    let powerWatts: Double       // |voltage × amperage| drawn from the battery
+    let powerWatts: Double       // live system power consumption
+    let adapterWatts: Int?       // rated wattage of the connected adapter
+    let adapterName: String?     // adapter description, when connected
     let timeToEmpty: Int         // minutes
     let timeToFull: Int          // minutes
     let cycleCount: Int

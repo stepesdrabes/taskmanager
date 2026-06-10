@@ -9,6 +9,7 @@ nonisolated final class EnergySampler {
         }
 
         let power = powerSource()
+        let onAC = battery["ExternalConnected"] as? Bool ?? (power.state == kIOPSACPowerValue)
         let designCapacity = battery["DesignCapacity"] as? Int ?? 0
         // Nominal full-charge capacity matches the "Maximum Capacity" macOS shows.
         let fullCharge = battery["NominalChargeCapacity"] as? Int
@@ -16,12 +17,16 @@ nonisolated final class EnergySampler {
         let voltage = Double(battery["Voltage"] as? Int ?? 0) / 1000
         let amperage = Double(battery["Amperage"] as? Int ?? 0) / 1000
 
+        let adapter = onAC ? battery["AdapterDetails"] as? [String: Any] : nil
+
         return EnergySnapshot(
             charge: Double(power.charge) / 100,
             isCharging: battery["IsCharging"] as? Bool ?? false,
             isFullyCharged: battery["FullyCharged"] as? Bool ?? false,
-            onAC: battery["ExternalConnected"] as? Bool ?? (power.state == kIOPSACPowerValue),
-            powerWatts: abs(voltage * amperage),
+            onAC: onAC,
+            powerWatts: systemPower(battery, fallback: abs(voltage * amperage)),
+            adapterWatts: adapter?["Watts"] as? Int,
+            adapterName: adapter?["Description"] as? String,
             timeToEmpty: power.timeToEmpty,
             timeToFull: power.timeToFull,
             cycleCount: battery["CycleCount"] as? Int ?? 0,
@@ -31,6 +36,18 @@ nonisolated final class EnergySampler {
             currentCapacity: fullCharge,
             voltage: voltage
         )
+    }
+
+    /// Live system power consumption (watts) from the power-telemetry block —
+    /// available on AC too, unlike the battery's own amperage. Falls back to the
+    /// battery discharge power when telemetry is absent.
+    private func systemPower(_ battery: [String: Any], fallback: Double) -> Double {
+        guard let telemetry = battery["PowerTelemetryData"] as? [String: Any],
+              let milliwatts = (telemetry["SystemLoad"] as? NSNumber)?.doubleValue,
+              milliwatts > 0 else {
+            return fallback
+        }
+        return milliwatts / 1000
     }
 
     private func batteryRegistry() -> [String: Any]? {
