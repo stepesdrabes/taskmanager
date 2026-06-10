@@ -30,6 +30,8 @@ struct ContentView: View {
             GPUView()
         case .disk:
             DiskView()
+        case .network:
+            NetworkView()
         default:
             PlaceholderView(section: selection ?? .cpu)
         }
