@@ -10,7 +10,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
    — `Snapshots.swift`, `RingBuffer.swift`, `SystemInfo.swift`, `Formatters.swift`.
 4. [x] `feat(sampling): add cpu sampler with per-core usage`
    — `CPUSampler` + `Sampler` skeleton returning CPU-only snapshots.
-5. [ ] `feat(store): add metrics store with sampling loop`
+5. [x] `feat(store): add metrics store with sampling loop`
    — `MetricsStore`, occlusion pause/resume, baseline reset. Temporary debug text proves live numbers.
 6. [ ] `feat(ui): add sidebar navigation with section placeholders`
    — `ContentView`, `Section` enum, `SidebarIcon`.
