@@ -9,6 +9,7 @@ build:
 	mkdir -p $(BUNDLE)/Contents/MacOS $(BUNDLE)/Contents/Resources
 	cp $(BINARY) $(BUNDLE)/Contents/MacOS/$(APP)
 	cp Support/Info.plist $(BUNDLE)/Contents/Info.plist
+	cp -R .build/release/$(APP)_$(APP).bundle $(BUNDLE)/Contents/Resources/
 	codesign --force -s - $(BUNDLE)
 
 run: build

@@ -7,6 +7,7 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "TaskManager",
+            resources: [.copy("Localizations")],
             swiftSettings: [.defaultIsolation(MainActor.self)]
         )
     ]
