@@ -6,7 +6,7 @@ code styles rule: do not put over-engineered messages into the code -> only actu
 
 # Project
 
-TaskManager — a native macOS system monitor in the spirit of Windows Task Manager: a SwiftUI sidebar with **CPU / Memory / GPU / Disk / Network / Energy / Processes** sections, each with live charts. Targets **macOS 26 only, Apple Silicon**. Zero dependencies beyond Apple frameworks (SwiftUI, Charts, IOKit, SystemConfiguration, Darwin).
+TaskManager — a native macOS system monitor in the spirit of Windows Task Manager: a SwiftUI sidebar with **CPU / Memory / GPU / Disk / Network / Energy / Processes / System Info** sections. Most are live charts; System Info is a searchable list of static facts. Targets **macOS 26 only, Apple Silicon**. Zero dependencies beyond Apple frameworks (SwiftUI, Charts, IOKit, SystemConfiguration, Metal, Darwin).
 
 # Build & run
 

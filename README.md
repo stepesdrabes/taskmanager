@@ -17,8 +17,9 @@ It feels at home on macOS because it *is* macOS — built entirely with SwiftUI 
 | 🌐 **Network** | Live up/down throughput per interface (your active one is preselected), session totals, and IP addresses. |
 | 🔋 **Energy** | Battery charge, live power draw, adapter wattage, health, cycle count, temperature, and time remaining. |
 | 📋 **Processes** | A sortable table with per-process CPU, memory, and disk usage, app icons, search, and End Task / Force Kill. |
+| 💻 **System Info** | A searchable rundown of your Mac: model, chip, displays, Metal, storage, OS, network, and more. |
 
-Hover any chart to read the exact value at that moment. Everything refreshes live (pick 0.5–5 s in Settings, ⌘,), and **⌘1–⌘7** jump between sections.
+Hover any chart to read the exact value at that moment. Everything refreshes live (pick 0.5–5 s in Settings, ⌘,), and **⌘1–⌘8** jump between sections.
 
 It's also a considerate guest: when its window is hidden or minimized, sampling stops entirely, so it idles at essentially **0% CPU**.
 
