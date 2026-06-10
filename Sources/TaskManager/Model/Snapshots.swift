@@ -4,6 +4,17 @@ nonisolated struct Snapshot: Sendable {
     let date: Date
     let cpu: CPUSnapshot
     let memory: MemorySnapshot
+    let gpu: GPUSnapshot?
+}
+
+/// Every field optional: the IOAccelerator key set is undocumented and varies
+/// by chip and OS release (plan/02).
+nonisolated struct GPUSnapshot: Sendable {
+    let device: Double?     // 0...1
+    let renderer: Double?
+    let tiler: Double?
+    let usedMemory: UInt64?
+    let allocatedMemory: UInt64?
 }
 
 nonisolated enum MemoryPressure: Int, Sendable {

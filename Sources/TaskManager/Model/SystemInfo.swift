@@ -47,6 +47,8 @@ nonisolated struct SystemInfo: Sendable {
     let memoryTotal: UInt64
     let pageSize: UInt64
     let bootTime: Date
+    let gpuName: String?
+    let gpuCoreCount: Int?
 
     /// The E-cluster owns the lowest CPU ids on every M-series chip so far;
     /// this is observed behavior, not a documented contract (plan/02).
@@ -56,6 +58,7 @@ nonisolated struct SystemInfo: Sendable {
 
     static func current() -> SystemInfo {
         let logical = Sysctl.int("hw.ncpu") ?? ProcessInfo.processInfo.activeProcessorCount
+        let gpu = GPUSampler.staticFacts()
         let perfLevels = Sysctl.int("hw.nperflevels") ?? 1
         let eCores = perfLevels > 1 ? (Sysctl.int("hw.perflevel1.logicalcpu") ?? 0) : 0
 
@@ -81,7 +84,9 @@ nonisolated struct SystemInfo: Sendable {
             eCoreL2: Sysctl.uint64("hw.perflevel1.l2cachesize") ?? 0,
             memoryTotal: Sysctl.uint64("hw.memsize") ?? 0,
             pageSize: Sysctl.uint64("hw.pagesize") ?? 16_384,
-            bootTime: bootTime
+            bootTime: bootTime,
+            gpuName: gpu.name,
+            gpuCoreCount: gpu.coreCount
         )
     }
 }

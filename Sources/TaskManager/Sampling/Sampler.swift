@@ -5,8 +5,9 @@ import Foundation
 nonisolated final class Sampler {
     private let cpu = CPUSampler()
     private let memory = MemorySampler()
+    private let gpu = GPUSampler()
 
     func sample() -> Snapshot {
-        Snapshot(date: Date(), cpu: cpu.sample(), memory: memory.sample())
+        Snapshot(date: Date(), cpu: cpu.sample(), memory: memory.sample(), gpu: gpu.sample())
     }
 }

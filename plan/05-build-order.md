@@ -20,7 +20,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
 9. [x] `feat(cpu): add per-core sparkline grid toggle`
 10. [x] `feat(memory): add memory sampler`
 11. [x] `feat(memory): add memory view with composition bar`
-12. [ ] `feat(gpu): add gpu sampler` — verify the PerformanceStatistics keys here (risk #1)
+12. [x] `feat(gpu): add gpu sampler` — verify the PerformanceStatistics keys here (risk #1)
 13. [ ] `feat(gpu): add gpu view`
 14. [ ] `feat(disk): add disk sampler with per-disk io rates and volumes`
 15. [ ] `feat(disk): add disk view with throughput chart and capacity bars`
