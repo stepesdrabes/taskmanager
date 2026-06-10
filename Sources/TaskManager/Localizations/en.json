@@ -116,7 +116,14 @@
     "totalRead": "Total read since boot",
     "totalWritten": "Total written since boot",
     "volumes": "Volumes",
-    "volumeUsage": "{used} of {total} used"
+    "volumeUsage": "{used} of {total} used",
+    "used": "Used",
+    "free": "Free",
+    "applications": "Applications",
+    "photos": "Photos",
+    "movies": "Movies",
+    "audio": "Audio",
+    "systemData": "System Data"
   },
 
   "network": {

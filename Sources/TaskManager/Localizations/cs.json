@@ -116,7 +116,14 @@
     "totalRead": "Celkem přečteno od startu",
     "totalWritten": "Celkem zapsáno od startu",
     "volumes": "Svazky",
-    "volumeUsage": "{used} z {total} použito"
+    "volumeUsage": "{used} z {total} použito",
+    "used": "Použito",
+    "free": "Volné",
+    "applications": "Aplikace",
+    "photos": "Fotky",
+    "movies": "Videa",
+    "audio": "Zvuk",
+    "systemData": "Systémová data"
   },
 
   "network": {

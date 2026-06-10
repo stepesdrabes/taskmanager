@@ -1,0 +1,83 @@
+name: Release
+
+# Cut a release by pushing a version tag, e.g.:
+#   git tag v0.2.0 && git push origin v0.2.0
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # needed to create the GitHub Release
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-26 # Apple Silicon + Xcode 26 (macOS 26 SDK) by default
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history + tags, required for the changelog
+
+      - name: Toolchain versions
+        run: swift --version && xcodebuild -version
+
+      - name: Derive version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp version into Info.plist
+        run: |
+          PLIST=Support/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${{ steps.version.outputs.version }}" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" "$PLIST"
+
+      - name: Build and assemble the app bundle
+        run: make build
+
+      - name: Package the app
+        run: |
+          ZIP="TaskManager-${GITHUB_REF_NAME}.zip"
+          ditto -c -k --keepParent build/TaskManager.app "$ZIP"
+          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
+        id: cliff
+        with:
+          config: cliff.toml
+          args: --latest
+        env:
+          OUTPUT: release-notes.md
+
+      - name: Append install instructions
+        run: |
+          cat >> release-notes.md <<'EOF'
+
+          ---
+
+          ### Install
+
+          TaskManager is **ad-hoc signed** (not notarized), so Gatekeeper blocks it on
+          first launch. After downloading:
+
+          1. Unzip and move **TaskManager.app** to **/Applications**.
+          2. Clear the quarantine flag:
+             ```sh
+             xattr -dr com.apple.quarantine /Applications/TaskManager.app
+             ```
+          3. Launch it normally.
+
+          Requires **macOS 26 (Tahoe)** on **Apple Silicon**.
+          EOF
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: TaskManager ${{ github.ref_name }}
+          body_path: release-notes.md
+          files: ${{ env.ZIP }}
+          fail_on_unmatched_files: true

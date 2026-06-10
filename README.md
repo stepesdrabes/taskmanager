@@ -13,7 +13,7 @@ It feels at home on macOS because it *is* macOS — built entirely with SwiftUI 
 | 🧠 **CPU** | Overall usage history plus a Windows-style grid of per-core mini charts, with P-core / E-core badges. Processes, threads, load average, uptime, and your chip's core layout and cache sizes. |
 | 📊 **Memory** | A usage graph tinted by memory pressure, a stacked breakdown (App / Wired / Compressed / Cached), an Activity-Monitor-style composition bar, and swap. |
 | 🎮 **GPU** | Device, renderer, and tiler utilization, shared memory in use, and core count. |
-| 💾 **Disk** | Live read/write throughput per physical disk, totals, and volume capacity bars that match what Finder shows. |
+| 💾 **Disk** | A System-Settings-style storage bar broken down by file type (Applications, Photos, Movies, Audio, System Data) with hover tooltips, plus live read/write throughput per physical disk and totals. |
 | 🌐 **Network** | Live up/down throughput per interface (your active one is preselected), session totals, and IP addresses. |
 | 🔋 **Energy** | Battery charge, live power draw, adapter wattage, health, cycle count, temperature, and time remaining. |
 | 📋 **Processes** | A sortable table with per-process CPU, memory, and disk usage, app icons, search, and End Task / Force Kill. |

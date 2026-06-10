@@ -3,24 +3,62 @@ import SwiftUI
 struct DiskView: View {
     @Environment(MetricsStore.self) private var store
     @Environment(Localizer.self) private var loc
+    @State private var usage: StorageUsage?
 
     var body: some View {
         SectionScrollView(
             title: loc("section.disk"),
             subtitle: activeDisks.map(\.id).joined(separator: " · ")
         ) {
-            ForEach(activeDisks) { disk in
-                diskBlock(disk)
+            if let volumes = store.latest?.volumes, !volumes.isEmpty {
+                ForEach(volumes) { volume in
+                    StorageMeter(
+                        title: volume.name,
+                        caption: loc("disk.volumeUsage", ["used": Format.storageBytes(volume.used), "total": Format.storageBytes(volume.total)]),
+                        used: slices(for: volume),
+                        free: volume.available,
+                        total: volume.total,
+                        freeLabel: loc("disk.free")
+                    )
+                    .padding(.bottom, 8)
+                }
             }
 
-            if let volumes = store.latest?.volumes, !volumes.isEmpty {
-                Text(loc("disk.volumes"))
-                    .font(.title3.weight(.semibold))
-                ForEach(volumes) { volume in
-                    volumeRow(volume)
+            if !activeDisks.isEmpty {
+                Divider()
+                ForEach(activeDisks) { disk in
+                    diskBlock(disk)
                 }
             }
         }
+        .task { usage = await StorageAnalyzer.analyze() }
+    }
+
+    /// The breakdown only covers the boot volume (Spotlight's scope); other
+    /// volumes fall back to a single Used segment.
+    private func slices(for volume: VolumeSnapshot) -> [StorageMeter.Slice] {
+        guard volume.id == "/", let usage, volume.used > 0 else {
+            return [.init(label: loc("disk.used"), bytes: volume.used, color: .accentColor)]
+        }
+        // Logical sizes (clones, compression) can exceed physical use — scale the
+        // categories down so they never overflow the used portion.
+        let categorized = usage.categorized
+        let scale = categorized > volume.used ? Double(volume.used) / Double(categorized) : 1
+        func scaled(_ bytes: UInt64) -> UInt64 { UInt64(Double(bytes) * scale) }
+
+        let apps = scaled(usage.applications)
+        let photos = scaled(usage.photos)
+        let movies = scaled(usage.movies)
+        let audio = scaled(usage.audio)
+        let systemData = volume.used - min(apps + photos + movies + audio, volume.used)
+
+        return [
+            .init(label: loc("disk.applications"), bytes: apps, color: .orange),
+            .init(label: loc("disk.photos"), bytes: photos, color: .yellow),
+            .init(label: loc("disk.movies"), bytes: movies, color: .pink),
+            .init(label: loc("disk.audio"), bytes: audio, color: .blue),
+            .init(label: loc("disk.systemData"), bytes: systemData, color: .gray),
+        ].filter { $0.bytes > 0 }
     }
 
     /// Disks with no traffic since boot are cryptexes/idle disk images — noise.
@@ -55,22 +93,6 @@ struct DiskView: View {
                 .init(label: loc("disk.totalWritten"), value: Format.storageBytes(disk.totalWritten)),
             ])
             .padding(.top, 12)
-        }
-    }
-
-    private func volumeRow(_ volume: VolumeSnapshot) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(volume.name)
-                    .font(.callout)
-                Spacer()
-                Text(loc("disk.volumeUsage", ["used": Format.storageBytes(volume.used), "total": Format.storageBytes(volume.total)]))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-            }
-            ProgressView(value: Double(volume.used), total: Double(max(volume.total, 1)))
-                .tint(MonitorSection.disk.tint)
         }
     }
 
