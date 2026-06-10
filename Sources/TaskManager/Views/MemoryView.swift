@@ -4,6 +4,7 @@ import SwiftUI
 struct MemoryView: View {
     @Environment(MetricsStore.self) private var store
     @State private var display: MemoryDisplay = .used
+    @State private var hoverIndex: Int?
 
     private enum MemoryDisplay: String, CaseIterable, Identifiable {
         case used = "Used"
@@ -12,55 +13,50 @@ struct MemoryView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                SectionHeader(title: "Memory", subtitle: Format.bytes(store.system.memoryTotal))
-
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(display == .used ? "Memory used (colored by pressure)" : "Memory breakdown")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Picker("Display", selection: $display) {
-                            ForEach(MemoryDisplay.allCases) { mode in
-                                Text(mode.rawValue).tag(mode)
-                            }
+        SectionScrollView(title: "Memory", subtitle: Format.bytes(store.system.memoryTotal)) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(display == .used ? "Memory used (colored by pressure)" : "Memory breakdown")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Picker("Display", selection: $display) {
+                        ForEach(MemoryDisplay.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
                         }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
-                        .fixedSize()
                     }
-                    if display == .used {
-                        usedChart
-                    } else {
-                        breakdownChart
-                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .fixedSize()
                 }
-
-                if let memory = store.latest?.memory {
-                    CompositionBar(
-                        segments: [
-                            .init(label: "App", value: memory.app, color: .green),
-                            .init(label: "Wired", value: memory.wired, color: .indigo),
-                            .init(label: "Compressed", value: memory.compressed, color: .orange),
-                            .init(label: "Cached", value: memory.cached, color: .gray),
-                        ],
-                        total: store.system.memoryTotal
-                    )
-
-                    StatGrid(items: items(for: memory))
-
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(pressureColor(memory.pressure))
-                            .frame(width: 8, height: 8)
-                        Text("Memory pressure: \(pressureLabel(memory.pressure))")
-                            .font(.callout)
-                    }
+                if display == .used {
+                    usedChart
+                } else {
+                    breakdownChart
                 }
             }
-            .padding(24)
+
+            if let memory = store.latest?.memory {
+                CompositionBar(
+                    segments: [
+                        .init(label: "App", value: memory.app, color: .green),
+                        .init(label: "Wired", value: memory.wired, color: .indigo),
+                        .init(label: "Compressed", value: memory.compressed, color: .orange),
+                        .init(label: "Cached", value: memory.cached, color: .gray),
+                    ],
+                    total: store.system.memoryTotal
+                )
+
+                StatGrid(items: items(for: memory))
+
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(pressureColor(memory.pressure))
+                        .frame(width: 8, height: 8)
+                    Text("Memory pressure: \(pressureLabel(memory.pressure))")
+                        .font(.callout)
+                }
+            }
         }
     }
 
@@ -99,6 +95,20 @@ struct MemoryView: View {
                     .interpolationMethod(.monotone)
                 }
             }
+
+            if let hoverIndex {
+                RuleMark(x: .value("Time", hoverIndex))
+                    .foregroundStyle(.secondary.opacity(0.4))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .annotation(
+                        position: .top,
+                        alignment: .center,
+                        spacing: 4,
+                        overflowResolution: .init(x: .fit(to: .chart), y: .fit(to: .chart))
+                    ) {
+                        ChartTooltip(rows: usedRows(at: hoverIndex))
+                    }
+            }
         }
         .chartXScale(domain: 0...(store.history.capacity - 1))
         .chartYScale(domain: 0...Double(store.system.memoryTotal))
@@ -113,6 +123,7 @@ struct MemoryView: View {
                 }
             }
         }
+        .chartXHover(capacity: store.history.capacity, selection: $hoverIndex)
         .frame(height: 240)
     }
 
@@ -143,6 +154,18 @@ struct MemoryView: View {
         return segments
     }
 
+    private func usedRows(at index: Int) -> [ChartTooltip.Row] {
+        let snapshots = store.history.elements
+        let i = index - (store.history.capacity - snapshots.count)
+        guard snapshots.indices.contains(i) else { return [] }
+        let memory = snapshots[i].memory
+        return [
+            .init(label: "Used", color: MonitorSection.memory.tint, value: Format.bytes(memory.used)),
+            .init(label: "Pressure", color: pressureColor(memory.pressure), value: pressureLabel(memory.pressure)),
+        ]
+    }
+
+    /// Stacked so the bands sum to total memory in use (App at the bottom).
     private var breakdownChart: some View {
         let snapshots = store.history.elements
         return HistoryChart(
@@ -154,7 +177,8 @@ struct MemoryView: View {
             ],
             capacity: store.history.capacity,
             yDomain: 0...Double(store.system.memoryTotal),
-            yLabel: { Format.bytes(UInt64($0)) }
+            yLabel: { Format.bytes(UInt64($0)) },
+            stacked: true
         )
         .frame(height: 240)
     }
