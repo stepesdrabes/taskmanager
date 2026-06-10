@@ -13,6 +13,15 @@ nonisolated enum Format {
         bytes(UInt64(max(0, value))) + "/s"
     }
 
+    /// Decimal units — what Finder and disk vendors use for storage.
+    static func storageBytes(_ value: UInt64) -> String {
+        Int64(clamping: value).formatted(.byteCount(style: .file))
+    }
+
+    static func storageBytesPerSecond(_ value: Double) -> String {
+        storageBytes(UInt64(max(0, value))) + "/s"
+    }
+
     /// Windows Task Manager style: D:HH:MM:SS.
     static func uptime(since boot: Date, now: Date = Date()) -> String {
         let total = max(0, Int(now.timeIntervalSince(boot)))

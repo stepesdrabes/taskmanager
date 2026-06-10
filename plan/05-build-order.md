@@ -23,7 +23,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
 12. [x] `feat(gpu): add gpu sampler` — verify the PerformanceStatistics keys here (risk #1)
 13. [x] `feat(gpu): add gpu view`
 14. [x] `feat(disk): add disk sampler with per-disk io rates and volumes`
-15. [ ] `feat(disk): add disk view with throughput chart and capacity bars`
+15. [x] `feat(disk): add disk view with throughput chart and capacity bars`
 16. [ ] `feat(network): add network sampler with primary interface detection`
 17. [ ] `feat(network): add network view`
 18. [ ] `feat(settings): add update interval setting and section shortcuts`
