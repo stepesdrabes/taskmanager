@@ -1,35 +1,50 @@
 # TaskManager
 
-**Windows Task Manager, for the Mac.** A native, slim macOS system monitor — a System-Settings-style sidebar with live charts for everything your machine is doing.
+**Windows Task Manager, reimagined for the Mac.** 🖥️
 
-## Features
+A slim, native macOS system monitor with a System-Settings-style sidebar and live charts for everything your machine is doing — CPU, memory, GPU, disk, network, battery, and processes. No Electron, no menu-bar clutter, no background daemon. Just a clean little window that tells you what's going on.
 
-- **CPU** — overall utilization history plus a Windows-style grid of per-core mini charts (with P-core / E-core badges), processes, threads, load average, uptime, core topology and cache sizes
-- **Memory** — usage history, Activity-Monitor-style composition bar (App / Wired / Compressed / Cached), memory pressure indicator, swap
-- **GPU** — device / renderer / tiler utilization, shared memory in use, core count
-- **Disk** — live read/write throughput per physical disk, totals since boot, volume capacity bars that match Finder
-- **Network** — live send/receive throughput per interface (primary preselected), session totals, IP addresses
-- **Energy** — battery charge, live power draw, health, cycle count, condition, temperature and time remaining
-- **Processes** — sortable table (CPU %, memory) with End Task
+It feels at home on macOS because it *is* macOS — built entirely with SwiftUI and Apple's own frameworks, so it picks up Liquid Glass, dark mode, and your accent color automatically.
 
-Everything updates live (0.5–5 s interval, configurable in Settings / ⌘,), ⌘1–⌘6 switch sections, and the app pauses sampling entirely while its window is hidden — it stays out of your way at ~0 % CPU.
+## What you get
+
+| | |
+|---|---|
+| 🧠 **CPU** | Overall usage history plus a Windows-style grid of per-core mini charts, with P-core / E-core badges. Processes, threads, load average, uptime, and your chip's core layout and cache sizes. |
+| 📊 **Memory** | A usage graph tinted by memory pressure, a stacked breakdown (App / Wired / Compressed / Cached), an Activity-Monitor-style composition bar, and swap. |
+| 🎮 **GPU** | Device, renderer, and tiler utilization, shared memory in use, and core count. |
+| 💾 **Disk** | Live read/write throughput per physical disk, totals, and volume capacity bars that match what Finder shows. |
+| 🌐 **Network** | Live up/down throughput per interface (your active one is preselected), session totals, and IP addresses. |
+| 🔋 **Energy** | Battery charge, live power draw, adapter wattage, health, cycle count, temperature, and time remaining. |
+| 📋 **Processes** | A sortable table with per-process CPU, memory, and disk usage, app icons, search, and End Task / Force Kill. |
+
+Hover any chart to read the exact value at that moment. Everything refreshes live (pick 0.5–5 s in Settings, ⌘,), and **⌘1–⌘7** jump between sections.
+
+It's also a considerate guest: when its window is hidden or minimized, sampling stops entirely, so it idles at essentially **0% CPU**.
 
 ## Requirements
 
-- macOS 26 (Tahoe) or later, Apple Silicon
-- Xcode 26 command-line tools (to build)
+- A Mac with **Apple Silicon**
+- **macOS 26 (Tahoe)** or later
+- **Xcode 26** command-line tools to build it
 
-## Quickstart
+## Get it running
 
 ```sh
-make run    # release build → build/TaskManager.app → launches it
-make dev    # swift run, for development
+make run    # build a release .app and launch it
+make dev    # run straight from source while hacking on it
+make clean  # remove build artifacts
 ```
 
-## How it works
+That's it — no signing setup, no dependencies to fetch.
 
-100 % native Swift / SwiftUI / Swift Charts, **zero third-party dependencies**, no Electron, no helpers, no root. Metrics come straight from the OS: Mach host calls for CPU and memory, IOKit for GPU, disk I/O and battery, sysctl routing tables for network — all public-ish, root-free interfaces.
+## A few honest notes
 
-The app is unsandboxed and ad-hoc signed (the metric APIs don't work under App Sandbox), which makes it a personal/local tool rather than an App Store candidate.
+- **It runs unsandboxed.** The system APIs it reads (IOKit, low-level sysctls) are blocked by the App Sandbox, so the app ships ad-hoc signed and sandbox-free. That makes it a great personal tool, but not an App Store candidate.
+- **No private APIs, ever.** A couple of things you might expect are intentionally left out because macOS doesn't expose them publicly on Apple Silicon: live per-core CPU *frequency* and *temperatures* (private interfaces only), and per-GPU-*core* utilization (which even Apple's own root tools don't report). TaskManager would rather show nothing than make up a number.
+- **Power draw updates slowly.** It reads real system wattage from the battery controller, which only refreshes every 30–60 s — so the Energy graph tracks sustained draw, not momentary spikes.
+- **Network totals are per session.** macOS 26 fuzzes byte counters for third-party apps, so throughput is computed carefully and totals count from when the app started rather than since boot.
 
-**By design, no private APIs**: live CPU frequency and temperatures aren't exposed by public macOS APIs on Apple Silicon, so v1 deliberately leaves them out instead of faking them. Per-GPU-core usage isn't exposed by macOS at all (even to root tools). And a macOS 26 quirk discovered along the way: the kernel degrades network *byte* counters for third-party apps (quantized + wrapped at 4 GiB), so network throughput is computed wrap-safely and totals are shown per session rather than since boot.
+## Under the hood
+
+100% native Swift, SwiftUI, and Swift Charts with **zero third-party dependencies**. Metrics come straight from the OS — Mach calls for CPU and memory, IOKit for GPU, disk, and battery, and routing-table sysctls for network. If you'd like to poke around or add a metric of your own, [`CLAUDE.md`](CLAUDE.md) walks through how the project is put together.
