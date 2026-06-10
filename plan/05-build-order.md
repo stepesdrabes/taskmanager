@@ -8,7 +8,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
    — Makefile, `Support/Info.plist`, ad-hoc codesign. `make run` launches the bundle with Dock icon.
 3. [x] `feat(model): add snapshot types, ring buffer and system info`
    — `Snapshots.swift`, `RingBuffer.swift`, `SystemInfo.swift`, `Formatters.swift`.
-4. [ ] `feat(sampling): add cpu sampler with per-core usage`
+4. [x] `feat(sampling): add cpu sampler with per-core usage`
    — `CPUSampler` + `Sampler` skeleton returning CPU-only snapshots.
 5. [ ] `feat(store): add metrics store with sampling loop`
    — `MetricsStore`, occlusion pause/resume, baseline reset. Temporary debug text proves live numbers.
