@@ -1,11 +1,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selection: MonitorSection? = .cpu
+    @Environment(MetricsStore.self) private var store
+
+    private var selection: MonitorSection? { store.selectedSection }
 
     var body: some View {
+        @Bindable var store = store
         NavigationSplitView {
-            List(MonitorSection.allCases, selection: $selection) { section in
+            List(MonitorSection.allCases, selection: $store.selectedSection) { section in
                 Label {
                     Text(section.title)
                 } icon: {

@@ -29,5 +29,19 @@ struct TaskManagerApp: App {
                     }
                 }
         }
+        .commands {
+            CommandMenu("View") {
+                ForEach(Array(MonitorSection.allCases.enumerated()), id: \.element) { index, section in
+                    Button(section.title) {
+                        store.selectedSection = section
+                    }
+                    .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: .command)
+                }
+            }
+        }
+
+        Settings {
+            SettingsView()
+        }
     }
 }

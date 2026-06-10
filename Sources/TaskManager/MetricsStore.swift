@@ -5,6 +5,7 @@ import Observation
 final class MetricsStore {
     private(set) var history = RingBuffer<Snapshot>(capacity: 120)
     let system = SystemInfo.current()
+    var selectedSection: MonitorSection? = .cpu
 
     var latest: Snapshot? { history.last }
 
