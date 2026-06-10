@@ -35,6 +35,8 @@ struct ContentView: View {
             DiskView()
         case .network:
             NetworkView()
+        case .energy:
+            EnergyView()
         case .processes:
             ProcessesView()
         }

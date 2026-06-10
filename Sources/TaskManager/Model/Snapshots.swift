@@ -8,6 +8,35 @@ nonisolated struct Snapshot: Sendable {
     let disks: [DiskSnapshot]
     let volumes: [VolumeSnapshot]
     let interfaces: [InterfaceSnapshot]
+    let energy: EnergySnapshot?
+}
+
+/// nil when no battery is present (desktops). Time fields: -1 = calculating,
+/// 0 = not applicable (e.g. fully charged on AC).
+nonisolated struct EnergySnapshot: Sendable {
+    let charge: Double          // 0...1
+    let isCharging: Bool
+    let isFullyCharged: Bool
+    let onAC: Bool
+    let powerWatts: Double       // |voltage × amperage| drawn from the battery
+    let timeToEmpty: Int         // minutes
+    let timeToFull: Int          // minutes
+    let cycleCount: Int
+    let health: Double           // nominal full charge / design capacity
+    let temperature: Double      // °C
+    let designCapacity: Int      // mAh
+    let currentCapacity: Int     // mAh — nominal full charge capacity
+    let voltage: Double          // V
+
+    enum Status {
+        case charging, charged, onBattery, pluggedNotCharging
+    }
+
+    var status: Status {
+        if isCharging { return .charging }
+        if onAC { return isFullyCharged ? .charged : .pluggedNotCharging }
+        return .onBattery
+    }
 }
 
 nonisolated struct InterfaceSnapshot: Sendable, Identifiable {

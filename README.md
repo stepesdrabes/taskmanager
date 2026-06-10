@@ -9,6 +9,7 @@
 - **GPU** — device / renderer / tiler utilization, shared memory in use, core count
 - **Disk** — live read/write throughput per physical disk, totals since boot, volume capacity bars that match Finder
 - **Network** — live send/receive throughput per interface (primary preselected), session totals, IP addresses
+- **Energy** — battery charge, live power draw, health, cycle count, condition, temperature and time remaining
 - **Processes** — sortable table (CPU %, memory) with End Task
 
 Everything updates live (0.5–5 s interval, configurable in Settings / ⌘,), ⌘1–⌘6 switch sections, and the app pauses sampling entirely while its window is hidden — it stays out of your way at ~0 % CPU.

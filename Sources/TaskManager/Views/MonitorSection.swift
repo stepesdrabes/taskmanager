@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum MonitorSection: String, CaseIterable, Identifiable {
-    case cpu, memory, gpu, disk, network, processes
+    case cpu, memory, gpu, disk, network, energy, processes
 
     var id: Self { self }
 
@@ -12,6 +12,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .gpu: "GPU"
         case .disk: "Disk"
         case .network: "Network"
+        case .energy: "Energy"
         case .processes: "Processes"
         }
     }
@@ -23,6 +24,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .gpu: "cpu.fill"   // SF Symbols has no gpu glyph; tint differentiates
         case .disk: "internaldrive"
         case .network: "network"
+        case .energy: "bolt.fill"
         case .processes: "list.bullet.rectangle"
         }
     }
@@ -34,6 +36,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .gpu: .purple
         case .disk: .orange
         case .network: .teal
+        case .energy: .yellow
         case .processes: .gray
         }
     }
