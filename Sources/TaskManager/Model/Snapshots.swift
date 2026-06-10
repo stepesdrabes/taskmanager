@@ -5,6 +5,25 @@ nonisolated struct Snapshot: Sendable {
     let cpu: CPUSnapshot
     let memory: MemorySnapshot
     let gpu: GPUSnapshot?
+    let disks: [DiskSnapshot]
+    let volumes: [VolumeSnapshot]
+}
+
+nonisolated struct DiskSnapshot: Sendable, Identifiable {
+    let id: String          // BSD name of the physical disk, e.g. "disk0"
+    let readPerSec: Double
+    let writePerSec: Double
+    let totalRead: UInt64   // cumulative since boot
+    let totalWritten: UInt64
+}
+
+nonisolated struct VolumeSnapshot: Sendable, Identifiable {
+    let id: String          // mount path
+    let name: String
+    let total: UInt64
+    let available: UInt64   // importantUsage capacity — matches Finder
+
+    var used: UInt64 { total - min(available, total) }
 }
 
 /// Every field optional: the IOAccelerator key set is undocumented and varies
