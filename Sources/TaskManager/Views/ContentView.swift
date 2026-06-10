@@ -38,6 +38,8 @@ struct ContentView: View {
             EnergyView()
         case .processes:
             ProcessesView()
+        case .systemInfo:
+            SystemInfoView()
         }
     }
 }

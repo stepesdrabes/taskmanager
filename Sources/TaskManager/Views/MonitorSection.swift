@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum MonitorSection: String, CaseIterable, Identifiable {
-    case cpu, memory, gpu, disk, network, energy, processes
+    case cpu, memory, gpu, disk, network, energy, processes, systemInfo
 
     var id: Self { self }
 
@@ -14,6 +14,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .network: "Network"
         case .energy: "Energy"
         case .processes: "Processes"
+        case .systemInfo: "System Info"
         }
     }
 
@@ -26,6 +27,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .network: "network"
         case .energy: "bolt.fill"
         case .processes: "list.bullet.rectangle"
+        case .systemInfo: "desktopcomputer"
         }
     }
 
@@ -38,6 +40,7 @@ enum MonitorSection: String, CaseIterable, Identifiable {
         case .network: .teal
         case .energy: .yellow
         case .processes: .gray
+        case .systemInfo: .indigo
         }
     }
 }
