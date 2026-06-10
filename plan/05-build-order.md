@@ -6,7 +6,7 @@ Each commit compiles and runs. Conventional-commit messages per CLAUDE.md; no co
    — `git init`, `.gitignore` (`.build/`, `build/`, `.DS_Store`), `Package.swift`, `TaskManagerApp.swift` showing an empty window incl. activation-policy fix. `swift run` shows a focusable window.
 2. [x] `feat(build): add makefile and app bundle packaging`
    — Makefile, `Support/Info.plist`, ad-hoc codesign. `make run` launches the bundle with Dock icon.
-3. [ ] `feat(model): add snapshot types, ring buffer and system info`
+3. [x] `feat(model): add snapshot types, ring buffer and system info`
    — `Snapshots.swift`, `RingBuffer.swift`, `SystemInfo.swift`, `Formatters.swift`.
 4. [ ] `feat(sampling): add cpu sampler with per-core usage`
    — `CPUSampler` + `Sampler` skeleton returning CPU-only snapshots.
