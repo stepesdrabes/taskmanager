@@ -15,7 +15,7 @@ struct CPUView: View {
             VStack(alignment: .leading, spacing: 24) {
                 SectionHeader(title: "CPU", subtitle: store.system.chipName)
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 14) {
                     HStack(alignment: .firstTextBaseline) {
                         Text(display == .overall ? "% Utilization" : "% Utilization per logical processor")
                             .font(.caption)
