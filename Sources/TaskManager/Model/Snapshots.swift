@@ -49,6 +49,14 @@ nonisolated struct GPUSnapshot: Sendable {
     let allocatedMemory: UInt64?
 }
 
+/// Not part of `Snapshot` — sampled on its own cadence, no history kept.
+nonisolated struct ProcessRow: Sendable, Identifiable {
+    let id: pid_t
+    let name: String
+    let cpu: Double      // fraction of one core; 1.0 = 100 % (Activity Monitor convention)
+    let memory: UInt64   // physical footprint bytes
+}
+
 nonisolated enum MemoryPressure: Int, Sendable {
     case normal = 1
     case warning = 2
