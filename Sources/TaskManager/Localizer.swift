@@ -55,6 +55,23 @@ final class Localizer {
 
     // MARK: - Loading
 
+    /// The bundle carrying `Localizations/`. SwiftPM's generated `Bundle.module`
+    /// looks beside the executable and falls back to the build machine's
+    /// absolute path, so it crashes once the `.app` is moved off the build host.
+    /// We locate the resource bundle ourselves: `Contents/Resources` in the
+    /// assembled `.app`, or next to the binary under `swift run`.
+    private static let bundle: Bundle = {
+        let name = "TaskManager_TaskManager.bundle"
+        let candidates = [
+            Bundle.main.resourceURL?.appendingPathComponent(name),
+            Bundle.main.bundleURL.appendingPathComponent(name),
+        ]
+        for case let url? in candidates where (try? url.checkResourceIsReachable()) == true {
+            if let bundle = Bundle(url: url) { return bundle }
+        }
+        return .main
+    }()
+
     private static func resolve(_ preference: String, available: [Language]) -> String {
         if preference == systemCode { return systemMatch(available) }
         return available.contains { $0.code == preference } ? preference : "en"
@@ -69,7 +86,7 @@ final class Localizer {
     }
 
     private static func discover() -> [Language] {
-        guard let urls = Bundle.module.urls(forResourcesWithExtension: "json", subdirectory: "Localizations") else {
+        guard let urls = bundle.urls(forResourcesWithExtension: "json", subdirectory: "Localizations") else {
             return []
         }
         return urls
@@ -81,7 +98,7 @@ final class Localizer {
     }
 
     private static func load(_ code: String) -> [String: String] {
-        guard let url = Bundle.module.url(forResource: code, withExtension: "json", subdirectory: "Localizations"),
+        guard let url = bundle.url(forResource: code, withExtension: "json", subdirectory: "Localizations"),
               let data = try? Data(contentsOf: url),
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return [:]
