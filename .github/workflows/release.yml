@@ -38,11 +38,16 @@ jobs:
       - name: Build and assemble the app bundle
         run: make build
 
-      - name: Package the app
+      - name: Package the app as a DMG
         run: |
-          ZIP="TaskManager-${GITHUB_REF_NAME}.zip"
-          ditto -c -k --keepParent build/TaskManager.app "$ZIP"
-          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+          DMG="TaskManager-${GITHUB_REF_NAME}.dmg"
+          STAGING="$(mktemp -d)"
+          cp -R build/TaskManager.app "$STAGING/"
+          ln -s /Applications "$STAGING/Applications"
+          hdiutil create -volname "TaskManager" \
+            -srcfolder "$STAGING" -fs HFS+ \
+            -format UDZO -ov "$DMG"
+          echo "DMG=$DMG" >> "$GITHUB_ENV"
 
       - name: Generate changelog
         uses: orhun/git-cliff-action@v4
@@ -64,7 +69,7 @@ jobs:
           TaskManager is **ad-hoc signed** (not notarized), so Gatekeeper blocks it on
           first launch. After downloading:
 
-          1. Unzip and move **TaskManager.app** to **/Applications**.
+          1. Open the **.dmg** and drag **TaskManager.app** into **Applications**.
           2. Clear the quarantine flag:
              ```sh
              xattr -dr com.apple.quarantine /Applications/TaskManager.app
@@ -79,5 +84,5 @@ jobs:
         with:
           name: TaskManager ${{ github.ref_name }}
           body_path: release-notes.md
-          files: ${{ env.ZIP }}
+          files: ${{ env.DMG }}
           fail_on_unmatched_files: true
